@@ -2,6 +2,7 @@ set(SOURCES
         main.cpp
         console/Console.cpp
         storage/Storage.cpp
+        database/Database.cpp
 )
 
 set(HEADERS include)

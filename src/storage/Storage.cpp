@@ -14,12 +14,6 @@ void Storage::initSchema(vector<string> &data) {
     exit(1);
   }
 
-  // bool isEmpty = db_schemas.tellp() == 0;
-  //
-  // if (!isEmpty) {
-  //   db_schemas << endl;
-  // }
-
   for (int i = 0; i < data.size(); ++i) {
     db_schemas << data[i];
     if (i != data.size() - 1) {

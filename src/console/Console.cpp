@@ -1,38 +1,43 @@
 #include "console/Console.h"
 #include <iostream>
 #include <limits>
-#include <vector>
 
 using namespace std;
 
 
-Console::Console() {
-  storage = new Storage();
-}
+Console::Console(Database &db) : db(db) {
+};
 
 void Console::run() {
-  int menu{0};
-  for (;;) {
-    cout << "\tDATABASE" << endl;
-    cout << "\t(1) New table " << endl;
-    cout << "\t(2) Show table " << endl;
-    cout << "\t(5) Salir " << endl;
-    cout << "Opcion : ";
-    cin >> menu;
-    cout << "\n ---> SEGUNDA OPCION\n";
-    switch (menu) {
-      case 1:
-        createTable();
-        break;
-      case 2:
-        cout << "Gracias por usar el Sistema" << endl;
-        break;
-      default:
-        cout << "Bye\n";
-        return;
+  string command;
+
+  cout << "Welcome BD alpha project MEGATRON" << endl;
+
+  while (true) {
+    cout << "[LittleDB]host >> ";
+    getline(cin, command);
+
+    execCommand(command);
+
+    if (command == "exit") {
+      cout << "Gracias por usar el Sistema." << endl;
+      break;
     }
   }
 }
+
+void Console::execCommand(string &command) {
+  if (command.find("create table") == 0) {
+    db.createTable(command);
+  } else if (command == "show tables") {
+    db.showTables();
+  }else if (command.find("insert into") == 0) {
+    db.insertInSchema(command);
+  } else {
+    cout << "Comando no reconocido." << endl;
+  }
+}
+
 
 void Console::createTable() {
   vector<string> data;
@@ -50,10 +55,5 @@ void Console::createTable() {
     data.push_back(word);
     word = "";
   }
-  cout << "Palabras ingresadas:" << endl;
-  for (const string &w: data) {
-    cout << w << endl;
-  }
-
-  storage->initSchema(data);
+  // storage->initSchema(data);
 }

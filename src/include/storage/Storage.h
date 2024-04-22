@@ -14,7 +14,6 @@ public:
   void initSchema(std::vector<std::string>& data);
   void insertDataSchema();
 
-  void execCommand(string &command);
   void createTable(string &command);
   void showTable();
 };

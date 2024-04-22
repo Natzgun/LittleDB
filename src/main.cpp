@@ -1,8 +1,10 @@
 #include <iostream>
 #include "console/Console.h"
+#include "database/Database.h"
 
 int main() {
-  Console interactiveConsole;
-  interactiveConsole.run();
+  Database db;
+  Console shell(db);
+  shell.run();
   return 0;
 }
