@@ -1,1 +1,0 @@
-Estudiantes#nombre#string#id#entero#dpto#string
