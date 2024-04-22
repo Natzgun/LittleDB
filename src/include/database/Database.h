@@ -10,6 +10,8 @@ using namespace std;
 
 class Database {
 private:
+  string separator(string &lineToSeparate);
+
 public:
   Database();
 

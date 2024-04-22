@@ -4,6 +4,14 @@
 #include <fstream>
 #include <sstream>
 
+string Database::separator(string &lineToSeparate) {
+  /*
+  short cont = 0;
+  while (lineToSeparate)
+  */
+  return "Todavia falto";
+}
+
 Database::Database() {
 }
 
@@ -60,7 +68,7 @@ void Database::insertInSchema(string &command) {
   }
 
   size_t pos2 = command.find('(');
-  string tableNameFromUser = command.substr(12,pos2 - 12);
+  string tableNameFromUser = command.substr(12, pos2 - 12);
 
   string lineNow, tableSchema;
 
@@ -74,16 +82,29 @@ void Database::insertInSchema(string &command) {
   }
 
   if (!tableExists) {
-    cerr << "La tabla " << tableNameFromUser <<" no existe" << endl;
+    cerr << "La tabla " << tableNameFromUser << " no existe" << endl;
+    return;
+  }
+  tableSchema = tableSchema.substr(tableNameFromUser.size() + 1);
+  /*
+  cout << tableSchema << endl;
+  cout << tableNameFromUser << endl;
+  */
+
+  fstream dataFile("../../data/usr/db/Estudiantes.txt");
+
+  if (!dataFile.is_open()) {
+    cerr << "Error for open Estudiantes.txt" << endl;
     return;
   }
 
-  cout << tableSchema << endl;
-
-
-
-  cout << tableNameFromUser << endl;
-
+  size_t initData = command.find('(');
+  size_t endData = command.find(')');
+  if (initData == string::npos || endData == string::npos || endData <= initData) {
+    cerr << "Insertion fail please use the correct format (value, value, ...)" << endl;
+    dataFile.close();
+    return;
+  }
 }
 
 void Database::showTables() {
