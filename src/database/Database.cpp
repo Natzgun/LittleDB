@@ -146,16 +146,18 @@ void Database::selectTable(string &command) {
 
   string line;
   while (getline(inFile, line)) {
-    replace(line.begin(), line.end(), '#', ' ');
+    replace(line.begin(), line.end(), '#', '\t');
     cout << line << endl;
-    // cout << "No esta entrando o si " << endl;
+
   }
 
   inFile.close();
   cout << "Select de la tabla '" << tableName << "'." << endl;
 }
 
-void Database::readCSV(string &tablename) {
+void Database::readCSV(string &command) {
+  string tablename = command.substr(8);
+
   ifstream schemaFile("../../data/usr/db/schemas.txt");
   if (!schemaFile.is_open()) {
     cerr << "Error: No se pudo abrir el archivo de esquemas." << endl;
