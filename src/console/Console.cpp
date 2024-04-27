@@ -33,11 +33,7 @@ void Console::execCommand(string &command) {
     db.showTables();
   }else if (command.find("insert into") == 0) {
     db.insertInSchema(command);
-  } else if (command.find("select") == 0){
-   db.selectTable(command);
-  } else if (command.find("ReadCSV") == 0){
-    db.readCSV(command);
-  }else {
+  } else {
     cout << "Comando no reconocido." << endl;
   }
 }

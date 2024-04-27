@@ -23,6 +23,6 @@ public:
 
   void selectTable(string &command);
 
-  void readCSV();
+  void readCSV(string &tablename);
 };
 #endif //DATABASE_H

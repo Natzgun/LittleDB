@@ -86,25 +86,35 @@ void Database::insertInSchema(string &command) {
     return;
   }
   tableSchema = tableSchema.substr(tableNameFromUser.size() + 1);
-  /*
-  cout << tableSchema << endl;
-  cout << tableNameFromUser << endl;
-  */
 
-  fstream dataFile("../../data/usr/db/Estudiantes.txt");
+  // cout << tableSchema << endl;
+  // cout << tableNameFromUser << endl;
+
+
+  ofstream dataFile("../../data/usr/db/" + tableNameFromUser + ".txt", ios::app);
 
   if (!dataFile.is_open()) {
-    cerr << "Error for open Estudiantes.txt" << endl;
+    cerr << "Error al abrir .txt" << endl;
     return;
   }
 
   size_t initData = command.find('(');
   size_t endData = command.find(')');
   if (initData == string::npos || endData == string::npos || endData <= initData) {
-    cerr << "Insertion fail please use the correct format (value, value, ...)" << endl;
+    cerr << "Inserta de forma correcta (value, value, ...)" << endl;
     dataFile.close();
     return;
   }
+
+  string values = command.substr(initData + 1, endData - initData - 1);
+
+  replace(values.begin(), values.end(), ',', '#');
+
+  dataFile << values << endl;
+
+  dataFile.close();
+  schemaFile.close();
+  cout << "Datos insertados en " + tableNameFromUser + ".txt exitosamente Bv." << endl;
 }
 
 void Database::showTables() {
@@ -123,4 +133,73 @@ void Database::selectTable(string &command) {
     cerr << "Error: Debes selecciona ua tabla" << endl;
     return;
   }
+
+  size_t pos3 = command.find(";");
+
+  string tableName = command.substr(pos2 + 5, pos3 - pos2 - 5);
+
+  ifstream inFile("../../data/usr/db/" + tableName + ".txt");
+  if (!inFile.is_open()) {
+    cerr << "Error: No se pudo abrir el archivo de la tabla '" << tableName << "'." << endl;
+    return;
+  }
+
+  string line;
+  while (getline(inFile, line)) {
+    replace(line.begin(), line.end(), '#', ' ');
+    cout << line << endl;
+    // cout << "No esta entrando o si " << endl;
+  }
+
+  inFile.close();
+  cout << "Select de la tabla '" << tableName << "'." << endl;
+}
+
+void Database::readCSV(string &tablename) {
+  ifstream schemaFile("../../data/usr/db/schemas.txt");
+  if (!schemaFile.is_open()) {
+    cerr << "Error: No se pudo abrir el archivo de esquemas." << endl;
+    return;
+  }
+
+  string tableSchema;
+  string line;
+  bool foundTable = false;
+  while (getline(schemaFile, line)) {
+    if (line.find(tablename) == 0) {
+      tableSchema = line;
+      foundTable = true;
+      break;
+    }
+  }
+  schemaFile.close();
+
+  if (!foundTable) {
+    cerr << "Error: No se encontró la definición de la tabla '" << tablename << "' en el archivo de esquemas." << endl;
+    return;
+  }
+
+  ifstream csvFile("../../data/usr/db/" + tablename + ".csv");
+  if (!csvFile.is_open()) {
+    cerr << "Error: No se pudo abrir el archivo CSV '" << tablename << ".csv'." << endl;
+    return;
+  }
+
+  ofstream outFile("../../data/usr/db/" + tablename + ".txt", ios::app);
+  if (!outFile.is_open()) {
+    cerr << "Error: No se pudo abrir el archivo de la tabla '" << tablename << ".txt' para escritura." << endl;
+    csvFile.close();
+    return;
+  }
+
+  string csvLine;
+  while (getline(csvFile, csvLine)) {
+    replace(csvLine.begin(), csvLine.end(), ',', '#');
+    outFile << csvLine << endl;
+  }
+
+  csvFile.close();
+  outFile.close();
+
+  cout << "Datos del archivo CSV '" << tablename << ".csv' insertados en la tabla '" << tablename << ".txt'." << endl;
 }
