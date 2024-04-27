@@ -3,3 +3,5 @@ cmake-build-debug
 build
 .vscode
 .cache
+data/usr/db/*.txt
+data/usr/db/*.csv
