@@ -6,7 +6,7 @@ class Validator {
 private:
 public:
   Validator();
-  size_t obtainColumnPosition(string &schema);
+  int obtainColumnPosition(string &schema, string &columnName);
 };
 
 #endif //VALIDATOR_H

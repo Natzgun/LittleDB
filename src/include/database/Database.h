@@ -13,7 +13,7 @@ class Database {
 private:
   string schemaExists(string &tableName);
   string separator(string &lineToSeparate);
-  Validator *validator;
+  Validator validator;
 
 public:
   Database();

@@ -38,6 +38,7 @@ void Console::parseSelect(string &selectCommand) {
   this->columns = selectCommand.substr(7, posTable - 8);
   cout << tableName << endl;
   cout << columns << endl;
+  cout << "-------------------" << endl;
 }
 
 void Console::cleanCommands() {
