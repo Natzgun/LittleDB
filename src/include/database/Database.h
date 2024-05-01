@@ -21,7 +21,7 @@ public:
 
   void showTables();
 
-  void selectTable(string &command);
+  void selectTable(string &tableName, string &columns);
 
   void readCSV(string &command);
 };

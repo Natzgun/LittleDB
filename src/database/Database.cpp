@@ -120,23 +120,7 @@ void Database::insertInSchema(string &command) {
 void Database::showTables() {
 }
 
-void Database::selectTable(string &command) {
-  size_t pos1 = command.find("select * from");
-
-  if (pos1 == string::npos) {
-    cerr << "No existe la tabla seleccionada" << endl;
-    return;
-  }
-
-  size_t pos2 = command.find("from");
-  if (pos2 == string::npos) {
-    cerr << "Error: Debes selecciona ua tabla" << endl;
-    return;
-  }
-
-  size_t pos3 = command.find(";");
-
-  string tableName = command.substr(pos2 + 5, pos3 - pos2 - 5);
+void Database::selectTable(string &tableName, string &columns) {
 
   ifstream inFile("../../data/usr/db/" + tableName + ".txt");
   if (!inFile.is_open()) {
