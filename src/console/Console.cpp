@@ -55,7 +55,7 @@ void Console::execCommand(string &command) {
     db.insertInSchema(command);
   } else if (command.find("select") == 0){
     parseSelect(command);
-    db.selectTable(tableName, columns);
+    db.selectTable(tableName, columns, condition);
     cleanCommands();
   } else if (command.find("ReadCSV") == 0){
     db.readCSV(command);

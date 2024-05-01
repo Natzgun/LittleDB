@@ -4,6 +4,33 @@
 #include <fstream>
 #include <sstream>
 
+string Database::schemaExists(string &tableName) {
+  ifstream schemaFile("../../data/usr/db/schemas.txt");
+  if (!schemaFile.is_open()) {
+    cerr << "Error: No se pudo abrir el archivo de esquemas." << endl;
+    return "notFound";
+  }
+
+  string tableSchema;
+  string line;
+  bool foundTable = false;
+  while (getline(schemaFile, line)) {
+    if (line.find(tableName) == 0) {
+      tableSchema = line;
+      foundTable = true;
+      break;
+    }
+  }
+  schemaFile.close();
+
+  if (!foundTable) {
+    cerr << "Error: No se encontró la definición de la tabla '" << tableName << "' en el archivo de esquemas." << endl;
+    return "notFound";
+  } else {
+    return tableSchema;
+  }
+}
+
 string Database::separator(string &lineToSeparate) {
   /*
   short cont = 0;
@@ -13,6 +40,7 @@ string Database::separator(string &lineToSeparate) {
 }
 
 Database::Database() {
+  this->validator = new Validator();
 }
 
 void Database::createTable(string &command) {
@@ -120,7 +148,11 @@ void Database::insertInSchema(string &command) {
 void Database::showTables() {
 }
 
-void Database::selectTable(string &tableName, string &columns) {
+void Database::selectTable(string &tableName, string &columns, string &condition) {
+  if (schemaExists(tableName) == "notFound")
+    return;
+  string schemaExtracted = schemaExists(tableName);
+  size_t positionColumn = validator->obtainColumnPosition(columns);
 
   ifstream inFile("../../data/usr/db/" + tableName + ".txt");
   if (!inFile.is_open()) {
@@ -142,26 +174,7 @@ void Database::selectTable(string &tableName, string &columns) {
 void Database::readCSV(string &command) {
   string tablename = command.substr(8);
 
-  ifstream schemaFile("../../data/usr/db/schemas.txt");
-  if (!schemaFile.is_open()) {
-    cerr << "Error: No se pudo abrir el archivo de esquemas." << endl;
-    return;
-  }
-
-  string tableSchema;
-  string line;
-  bool foundTable = false;
-  while (getline(schemaFile, line)) {
-    if (line.find(tablename) == 0) {
-      tableSchema = line;
-      foundTable = true;
-      break;
-    }
-  }
-  schemaFile.close();
-
-  if (!foundTable) {
-    cerr << "Error: No se encontró la definición de la tabla '" << tablename << "' en el archivo de esquemas." << endl;
+  if(schemaExists(tablename) == "notFound") {
     return;
   }
 

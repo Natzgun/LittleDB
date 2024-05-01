@@ -4,10 +4,10 @@ set(SOURCES
         storage/Storage.cpp
         database/Database.cpp
         database/Query.cpp
+        database/Validator.cpp
 )
 
-set(HEADERS include
-        include/database/Query.h)
+set(HEADERS include)
 
 add_executable(LittleDB ${SOURCES} ${HEADERS})
 

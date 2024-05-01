@@ -1,7 +1,5 @@
 #ifndef STORAGE_H
 #define STORAGE_H
-#include <string>
-#include <vector>
 #include <iostream>
 
 using namespace std;
@@ -11,7 +9,6 @@ private:
   int size;
 public:
   Storage();
-  void initSchema(std::vector<std::string>& data);
   void insertDataSchema();
 
   void createTable(string &command);

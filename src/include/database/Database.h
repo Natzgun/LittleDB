@@ -5,12 +5,15 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 #include <iostream>
-#include <vector>
+
+#include "Validator.h"
 using namespace std;
 
 class Database {
 private:
+  string schemaExists(string &tableName);
   string separator(string &lineToSeparate);
+  Validator *validator;
 
 public:
   Database();
@@ -21,7 +24,7 @@ public:
 
   void showTables();
 
-  void selectTable(string &tableName, string &columns);
+  void selectTable(string &tableName, string &columns, string &condition);
 
   void readCSV(string &command);
 };
