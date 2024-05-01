@@ -10,6 +10,5 @@ private:
 public:
   Console(Database& db);
   void run();
-  void createTable();
 };
 #endif //CONSOLE_H

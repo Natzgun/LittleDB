@@ -41,23 +41,3 @@ void Console::execCommand(string &command) {
     cout << "Comando no reconocido." << endl;
   }
 }
-
-
-void Console::createTable() {
-  vector<string> data;
-  string word;
-
-  cout << "Table name: ";
-  cin >> word;
-  data.push_back(word);
-  cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-  while (true) {
-    getline(cin, word);
-    if (word.empty())
-      break;
-    data.push_back(word);
-    word = "";
-  }
-  // storage->initSchema(data);
-}
