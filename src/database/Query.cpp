@@ -44,7 +44,7 @@ void Query::selectColumn(string &tableName, int columnIndex) {
   inFile.close();
 }
 
-void Query::selectWithCondition(const string &tableName, const string &condition) {
+void Query::selectWithCondition(string &tableName, string &condition, int colIndex) {
   ifstream inFile("../../data/usr/db/" + tableName + ".txt");
   if (!inFile.is_open()) {
     cerr << "Error: No se pudo abrir el archivo de la tabla '" << tableName << "'." << endl;
@@ -59,9 +59,9 @@ void Query::selectWithCondition(const string &tableName, const string &condition
     int columnInteger = 0;
     int currentColumn = 0;
     while (getline(ss, field, '#')) {
-      if (currentColumn == 1) {
+      if (currentColumn == colIndex) {
         columnInteger = stoi(field);
-        if (columnInteger < 15) {
+        if (compare(columnInteger,condition)) {
           replace(line.begin(), line.end(), '#', '\t');
           cout << line << endl;
         }
@@ -72,5 +72,21 @@ void Query::selectWithCondition(const string &tableName, const string &condition
   }
 
   inFile.close();
+}
+
+bool Query::compare(int value, string &condition) {
+  char op = condition[0];
+  int compareValue = stoi(condition.substr(1));
+  switch (op) {
+    case '>':
+      return value > compareValue;
+    case '<':
+      return value < compareValue;
+    case '=':
+      return value == compareValue;
+    default:
+      cerr << "Error: Operador no válido en la condición." << endl;
+    return false;
+  }
 }
 

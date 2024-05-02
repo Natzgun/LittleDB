@@ -166,10 +166,13 @@ void Database::selectTable(string &tableName, string &columns, string &condition
   if (columns == "*") {
     // Query::selectAllColumns(tableName);
     if (condition.empty()) {
-      //Query::selectAllColumns(tableName);
+      Query::selectAllColumns(tableName);
       cout << "Seleccionando todo" << endl;
     } else {
-      Query::selectWithCondition(tableName, "PassengerId > 15");
+      string colNameofCondition = condition.substr(0, condition.find(' '));
+      int colIndex = getColumnIndex(tableName, colNameofCondition);
+      string restCondition = condition.substr(condition.find(' ') + 1);
+      Query::selectWithCondition(tableName, restCondition, colIndex);
     }
   } else {
     Query::selectColumn(tableName, getColumnIndex(tableName, columns));
