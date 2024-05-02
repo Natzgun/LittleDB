@@ -27,17 +27,33 @@ void Console::run() {
 }
 
 void Console::parseSelect(string &selectCommand) {
-  int posTable = selectCommand.find("from");
-  int endTable = selectCommand.find(';');
-  if (endTable == string::npos) {
-    cerr << "Error: Debes selecciona ua tabla" << endl;
+  int posFrom = selectCommand.find("from");
+  if (posFrom == string::npos) {
+    cerr << "Error: Debes seleccionar una tabla" << endl;
     return;
   }
 
-  this->tableName = selectCommand.substr(posTable + 5, endTable - posTable - 5);
-  this->columns = selectCommand.substr(7, posTable - 8);
-  cout << tableName << endl;
-  cout << columns << endl;
+  int posWhere = selectCommand.find("where");
+  int endTable = selectCommand.find(';');
+
+  if (endTable == string::npos) {
+    cerr << "Error: La consulta debe terminar con ';'" << endl;
+    return;
+  }
+
+  if (posWhere != string::npos && posWhere < endTable) {
+    this->tableName = selectCommand.substr(posFrom + 5, posWhere - posFrom - 6);
+    this->columns = selectCommand.substr(7, posFrom - 8);
+    this->condition = selectCommand.substr(posWhere + 6, endTable - posWhere - 6);
+  } else {
+    this->tableName = selectCommand.substr(posFrom + 5, endTable - posFrom - 5);
+    this->columns = selectCommand.substr(7, posFrom - 8);
+    this->condition = "";
+  }
+
+  cout << "Table Name: " << tableName << endl;
+  cout << "Columns: " << columns << endl;
+  cout << "Condition: " << condition << endl;
   cout << "-------------------" << endl;
 }
 
