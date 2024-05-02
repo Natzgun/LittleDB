@@ -13,6 +13,7 @@ class Database {
 private:
   string schemaExists(string &tableName);
   string separator(string &lineToSeparate);
+  int getColumnIndex(string &tableName, string &columns);
   Validator validator;
 
 public:

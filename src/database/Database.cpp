@@ -1,4 +1,5 @@
 #include "database/Database.h"
+#include "database/Query.h"
 
 #include <algorithm>
 #include <fstream>
@@ -37,6 +38,17 @@ string Database::separator(string &lineToSeparate) {
   while (lineToSeparate)
   */
   return "Todavia falto";
+}
+
+int Database::getColumnIndex(string &tableName, string &columns) {
+  string schemaExtracted = schemaExists(tableName);
+  schemaExtracted = schemaExtracted.substr(tableName.size() + 1);
+  int columnIndex = validator.obtainColumnPosition(schemaExtracted, columns);
+  if (columnIndex == -1) {
+    cerr << "Error: La columna '" << columns << "' no se encontró en el esquema." << endl;
+  }
+
+  return columnIndex;
 }
 
 Database::Database() {
@@ -152,49 +164,9 @@ void Database::selectTable(string &tableName, string &columns, string &condition
     return;
 
   if (columns == "*") {
-    ifstream inFile("../../data/usr/db/" + tableName + ".txt");
-    if (!inFile.is_open()) {
-      cerr << "Error: No se pudo abrir el archivo de la tabla '" << tableName << "'." << endl;
-      return;
-    }
-
-    string line;
-    while (getline(inFile, line)) {
-      replace(line.begin(), line.end(), '#', '\t');
-      cout << line << endl;
-    }
-
-    inFile.close();
+    Query::selectAllColumns(tableName);
   } else {
-    string schemaExtracted = schemaExists(tableName);
-    schemaExtracted = schemaExtracted.substr(tableName.size() + 1);
-    int columnIndex = validator.obtainColumnPosition(schemaExtracted, columns);
-    if (columnIndex == -1) {
-      cerr << "Error: La columna '" << columns << "' no se encontró en el esquema." << endl;
-      return;
-    }
-
-    ifstream inFile("../../data/usr/db/" + tableName + ".txt");
-    if (!inFile.is_open()) {
-      cerr << "Error: No se pudo abrir el archivo de la tabla '" << tableName << "'." << endl;
-      return;
-    }
-
-    string line;
-    while (getline(inFile, line)) {
-      stringstream ss(line);
-      string token;
-      int currentColumn = 0;
-      while (getline(ss, token, '#')) {
-        if (currentColumn == columnIndex) {
-          cout << token << endl;
-          break;
-        }
-        ++currentColumn;
-      }
-    }
-
-    inFile.close();
+    Query::selectColumn(tableName, getColumnIndex(tableName, columns));
   }
 
   cout << "Select de la tabla '" << tableName << "'." << endl;
