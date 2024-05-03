@@ -5,6 +5,7 @@ set(SOURCES
         database/Database.cpp
         database/Query.cpp
         database/Validator.cpp
+        storage/Disk.cpp
 )
 
 set(HEADERS include)
