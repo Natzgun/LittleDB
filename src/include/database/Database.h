@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "Validator.h"
+#include "storage/Disk.h"
 using namespace std;
 
 class Database {
@@ -15,6 +16,7 @@ private:
   string separator(string &lineToSeparate);
   int getColumnIndex(string &tableName, string &columns);
   Validator validator;
+  Disk disk;
 
 public:
   Database();
@@ -28,5 +30,7 @@ public:
   void selectTable(string &tableName, string &columns, string &condition);
 
   void readCSV(string &command);
+
+  void selectDiskStructure(bool defaultDisk);
 };
 #endif //DATABASE_H

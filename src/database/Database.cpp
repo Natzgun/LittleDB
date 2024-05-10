@@ -212,3 +212,23 @@ void Database::readCSV(string &command) {
 
   cout << "Datos del archivo CSV '" << tablename << ".csv' insertados en la tabla '" << tablename << ".txt'." << endl;
 }
+
+void Database::selectDiskStructure(bool defaultDisk) {
+  if (defaultDisk) {
+    disk.capacityDisk();
+    disk.generateDiskStructure();
+  } else {
+    int plates, tracks, sector, bytes;
+    cout << "Ingrese el número de platos: ";
+    cin >> plates;
+    cout << "Ingrese el número de pistas por superficie: ";
+    cin >> tracks;
+    cout << "Ingrese el número de sectores por pista: ";
+    cin >> sector;
+    cout << "Ingrese el número de bytes por sector: ";
+    cin >> bytes;
+    disk = Disk(plates, tracks, sector, bytes);
+    disk.generateDiskStructure();
+    disk.capacityDisk();
+  }
+}

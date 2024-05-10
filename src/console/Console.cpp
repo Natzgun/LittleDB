@@ -10,13 +10,16 @@ Console::Console(Database &db) : db(db) {
 
 void Console::run() {
   string command;
+  int option;
 
   cout << "Welcome BD alpha project MEGATRON" << endl;
 
   while (true) {
     cout << "[LittleDB]host >> ";
     getline(cin, command);
-
+    if (command == "Disk") {
+      selectDisk();
+    }
     execCommand(command);
 
     if (command == "exit") {
@@ -78,5 +81,26 @@ void Console::execCommand(string &command) {
     db.readCSV(command);
   } else {
     cout << "Comando no reconocido." << endl;
+  }
+}
+
+void Console::selectDisk() {
+  cout << "Seleccione una opción:" << endl;
+  cout << "1. Utilizar el disco por defecto." << endl;
+  cout << "2. Crear un nuevo disco." << endl;
+
+  int option;
+  cin >> option;
+  cin.ignore();
+
+  switch (option) {
+    case 1:
+      db.selectDiskStructure(true);
+    break;
+    case 2:
+      db.selectDiskStructure(false);
+    break;
+    default:
+      cout << "Opción inválida." << endl;
   }
 }

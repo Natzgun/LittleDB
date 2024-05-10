@@ -10,6 +10,9 @@ private:
   string columns;
   string condition;
   void execCommand(string &command);
+
+  void selectDisk();
+
 public:
   Console(Database& db);
   void run();
