@@ -216,9 +216,8 @@ void Database::readCSV(string &command) {
 void Database::selectDiskStructure(bool defaultDisk) {
   if (defaultDisk) {
     disk.capacityDisk();
-    disk.generateDiskStructure();
   } else {
-    int plates, tracks, sector, bytes;
+    int plates, tracks, sector, bytes, bytesPerBlock;
     cout << "Ingrese el número de platos: ";
     cin >> plates;
     cout << "Ingrese el número de pistas por superficie: ";
@@ -227,7 +226,9 @@ void Database::selectDiskStructure(bool defaultDisk) {
     cin >> sector;
     cout << "Ingrese el número de bytes por sector: ";
     cin >> bytes;
-    disk = Disk(plates, tracks, sector, bytes);
+    cout << "Ingrese el numero de bytes por bloque: ";
+    cin >> bytesPerBlock;
+    disk = Disk(plates, tracks, sector, bytes, bytesPerBlock);
     disk.generateDiskStructure();
     disk.capacityDisk();
   }

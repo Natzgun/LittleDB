@@ -5,7 +5,7 @@
 using namespace std;
 
 void Disk::createDirectories(TreeNode &node, int levels, const std::vector<int> &directoriesPerLevel) {
-  if (levels <= 0)
+  if (levels < 0)
     return;
 
   try {
@@ -24,19 +24,19 @@ void Disk::createDirectories(TreeNode &node, int levels, const std::vector<int> 
 }
 
 Disk::Disk() {
-  this->numPlatters = 8;
-  this->numPlatters = 8;
-  this->tracksPerSurface = 16384;
-  this->sectorsPerTrack = 128;
+  // Esto es un disco de 16 Megabytes
+  this->numPlatters = 2;
+  this->tracksPerSurface = 64;
+  this->sectorsPerTrack = 32;
   this->bytesPerSector = 4096;
 
-  this->bytesPerBlock = 8192;
+  this->bytesPerBlock = 16384;
   this->sectorPerBlock = this->bytesPerBlock / this->bytesPerSector;
   this->blockPerTrack = this->sectorsPerTrack / (this->bytesPerBlock / this->bytesPerSector);
 }
 
-Disk::Disk(int plates, int tracks, int sector, int bytes) : numPlatters(plates), tracksPerSurface(tracks),
-                                                            sectorsPerTrack(sector), bytesPerSector(bytes) {
+Disk::Disk(int plates, int tracks, int sector, int bytes, int bytesBlock) : numPlatters(plates), tracksPerSurface(tracks),
+                                                            sectorsPerTrack(sector), bytesPerSector(bytes), bytesPerBlock(bytesBlock) {
 }
 
 void Disk::capacityDisk() {
@@ -47,5 +47,23 @@ void Disk::capacityDisk() {
 }
 
 void Disk::generateDiskStructure() {
+  TreeNode root;
+  root.directory = "../../data/root_directory";
+
+  int levels;
+  cout << "Ingrese la cantidad de niveles de anidamiento: ";
+  cin >> levels;
+
+  vector<int> directoriesPerLevel(levels);
+  cout << "Ingrese la cantidad de carpetas para cada nivel:" << std::endl;
+  for (int i = 0; i < levels; ++i) {
+    cout << "Nivel " << (i + 1) << ": ";
+    cin >> directoriesPerLevel[i];
+  }
+
+  createDirectories(root, levels, directoriesPerLevel);
+
+  cout << "Estructura de directorios creada exitosamente." << std::endl;
   cout << "Se ha generado el disco" << endl;
+  cout << "------------------------------------------------" << endl;
 }

@@ -26,7 +26,7 @@ private:
 
 public:
   Disk();
-  Disk(int,int,int,int);
+  Disk(int,int,int,int,int);
   void capacityDisk();
   void generateDiskStructure();
 };
