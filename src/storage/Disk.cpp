@@ -1,6 +1,5 @@
 #include "storage/Disk.h"
 
-#include <cstdint>
 #include <fstream>
 #include <iostream>
 using namespace std;
@@ -25,12 +24,6 @@ void Disk::createFileBlock(const string &path_file, int numberOfBlock, int &numS
   numSector = numSector - this->sectorPerBlock;
 
   file << endl;
-  for (int i = 1; i <= this->sectorPerBlock; ++i, ++numSector) {
-    file << "sector" << numSector << "#";
-    file << endl;
-  }
-
-  numSector = numSector - this->sectorPerBlock;
 
   file << "blockCapacity#" << this->bytesPerBlock << endl;
   for (int i = 1; i <= this->sectorPerBlock; ++i, ++numSector) {
@@ -45,6 +38,8 @@ void Disk::createFileBlock(const string &path_file, int numberOfBlock, int &numS
 void Disk::createDirectories(TreeNode &node, int levels, const std::vector<int> &directoriesPerLevel) {
   static int totalFiles = 0;
   static int numSector = 1;
+  static int sectorNumerationForFile = 1;
+  static int numBlock = 0;
   if (levels < 0)
     return;
 
@@ -54,15 +49,20 @@ void Disk::createDirectories(TreeNode &node, int levels, const std::vector<int> 
 
       cout << "Directorio creado correctamente: " << node.directory << endl;
     } else {
-      createFile(node.directory.string() + ".txt");
+      string pathSector = node.directory.string();
+      size_t pos = pathSector.find_last_not_of("0123456789");
+      pathSector.erase(pos + 1);
+      createFile(pathSector + std::to_string(sectorNumerationForFile++) + ".txt");
       totalFiles++;
 
       if (totalFiles == directoriesPerLevel[0]) {
-        for (int i = 0; i < this->blockPerTrack; ++i) {
-          createFileBlock(node.directory.parent_path().string() + "/block" + std::to_string(i + 1) + ".txt", (i + 1), numSector);
+        for (int i = 0; i < this->blockPerTrack; ++i, ++numBlock) {
+          createFileBlock(node.directory.parent_path().string() + "/block" + std::to_string(numBlock + 1) + ".txt", (numBlock + 1), numSector);
         }
         totalFiles = 0;
-        numSector = 1;
+
+        // Con esto se reinicia el contador de sectores
+        //numSector = 1;
       }
     }
 
