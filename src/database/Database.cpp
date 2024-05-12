@@ -215,6 +215,7 @@ void Database::readCSV(string &command) {
 
 void Database::selectDiskStructure(bool defaultDisk) {
   if (defaultDisk) {
+    disk.generateDiskStructure();
     disk.capacityDisk();
   } else {
     int plates, tracks, sector, bytes, bytesPerBlock;

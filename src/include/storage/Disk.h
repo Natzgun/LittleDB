@@ -3,6 +3,9 @@
 
 #include <filesystem>
 #include <vector>
+#include <string>
+
+using std::string;
 
 namespace fs = std::filesystem;
 
@@ -22,6 +25,9 @@ private:
     std::vector<TreeNode> children;
   };
 
+  void createFile(const string & path_file);
+  void createFileBlock(const string & path_file, int numberOfBlock, int &numSector);
+
   void createDirectories(TreeNode& node, int levels, const std::vector<int>& directoriesPerLevel);
 
 public:
@@ -29,5 +35,6 @@ public:
   Disk(int,int,int,int,int);
   void capacityDisk();
   void generateDiskStructure();
+  string nameForFiles(int);
 };
 #endif //DISK_H
