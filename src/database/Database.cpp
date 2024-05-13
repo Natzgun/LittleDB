@@ -51,6 +51,39 @@ int Database::getColumnIndex(string &tableName, string &columns) {
   return columnIndex;
 }
 
+int Database::extractFixedLenghtRecord(string &relation) {
+  stringstream ss(relation);
+  string part;
+  int sum = 0;
+
+  while (getline(ss, part, '#')) {
+    if (isdigit(part[0])) {
+      sum += stoi(part);
+    }
+  }
+
+  return sum;
+}
+
+string Database::formatRecord(string &relation, string &record) {
+  stringstream ssRelation(relation);
+  stringstream ssRecord(record);
+  string partRelation, partRecord;
+  string result = "";
+
+  while (getline(ssRelation, partRelation, '#') && getline(ssRecord, partRecord, ',')) {
+    getline(ssRelation, partRelation, '#');
+    getline(ssRelation, partRelation, '#');
+    int length = stoi(partRelation);
+
+    partRecord.resize(length, ' ');
+
+    result += partRecord;
+  }
+
+  return result;
+}
+
 Database::Database() {
 }
 
@@ -130,7 +163,7 @@ void Database::insertInSchema(string &command) {
   // cout << tableNameFromUser << endl;
 
 
-  ofstream dataFile("../../data/usr/db/" + tableNameFromUser + ".txt", ios::app);
+  ofstream dataFile("../../data/root_directory/platter1/track1/sector1.txt", ios::app);
 
   if (!dataFile.is_open()) {
     cerr << "Error al abrir .txt" << endl;
@@ -148,8 +181,9 @@ void Database::insertInSchema(string &command) {
   // Lo anterior era para extraer los datos del comando
   string values = command.substr(initData + 1, endData - initData - 1);
 
-  replace(values.begin(), values.end(), ',', '#');
-
+  int fixedLength = extractFixedLenghtRecord(tableSchema);
+  values = formatRecord(tableSchema, values);
+  //diskManager.insertRecord(tableNameFromUser, values, fixedLength);
   dataFile << values << endl;
 
   dataFile.close();
@@ -157,8 +191,6 @@ void Database::insertInSchema(string &command) {
   cout << "Datos insertados en " + tableNameFromUser + ".txt exitosamente Bv." << endl;
 }
 
-void Database::showTables() {
-}
 
 void Database::selectTable(string &tableName, string &columns, string &condition) {
   if (schemaExists(tableName) == "notFound")

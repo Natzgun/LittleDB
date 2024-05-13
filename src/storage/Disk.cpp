@@ -14,7 +14,7 @@ void Disk::createFileBlock(const string &path_file, int numberOfBlock, int &numS
   if (!file.is_open())
     return;
 
-  file << "HEADER#Block" << numberOfBlock << endl;
+  file << "FREE#HEADER#Block" << numberOfBlock << endl;
   file << "sectors#";
   for (int i = 1; i <= this->sectorPerBlock; ++i, ++numSector) {
     file << "sector" << numSector;
@@ -57,7 +57,14 @@ void Disk::createDirectories(TreeNode &node, int levels, const std::vector<int> 
 
       if (totalFiles == directoriesPerLevel[0]) {
         for (int i = 0; i < this->blockPerTrack; ++i, ++numBlock) {
-          createFileBlock(node.directory.parent_path().string() + "/block" + std::to_string(numBlock + 1) + ".txt", (numBlock + 1), numSector);
+          //createFileBlock(node.directory.parent_path().string() + "/block" + std::to_string(numBlock + 1) + ".txt", (numBlock + 1), numSector);
+          string blockPath = node.directory.parent_path().string() + "/block" + std::to_string(numBlock + 1) + ".txt";
+          createFileBlock(blockPath, (numBlock + 1), numSector);
+
+          // Crear un nuevo nodo de bloque y agregarlo al nodo actual
+          TreeNode blockNode;
+          blockNode.directory = blockPath;
+          node.children.push_back(blockNode);
         }
         totalFiles = 0;
 
@@ -99,8 +106,8 @@ Disk::Disk(int plates, int tracks, int sector, int bytes, int bytesBlock) : numP
   this->blockPerTrack = this->sectorsPerTrack / (this->bytesPerBlock / this->bytesPerSector);
 }
 
-Disk::TreeNode& Disk::getRoot() {
-  return root;
+TreeNode &Disk::getRoot() {
+  return this->root;
 }
 
 void Disk::capacityDisk() {

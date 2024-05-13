@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <vector>
 #include <string>
+#include "storage/TreeNode.h"
 
 using std::string;
 
@@ -19,11 +20,6 @@ private:
   int sectorPerBlock;
   int bytesPerBlock;
   int blockPerTrack;
-
-  struct TreeNode {
-    fs::path directory;
-    std::vector<TreeNode> children;
-  };
 
   TreeNode root;
 

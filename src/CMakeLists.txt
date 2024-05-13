@@ -7,6 +7,7 @@ set(SOURCES
         database/Validator.cpp
         storage/Disk.cpp
         storage/Disk_manager.cpp
+        storage/HeapFile.cpp
 )
 
 set(HEADERS include)

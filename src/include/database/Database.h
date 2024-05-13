@@ -15,6 +15,10 @@ private:
   string schemaExists(string &tableName);
   string separator(string &lineToSeparate);
   int getColumnIndex(string &tableName, string &columns);
+  int extractFixedLenghtRecord(string &relation);
+
+  string formatRecord(string &relation, string &record);
+
   Validator validator;
   Disk_manager diskManager;
 public:
@@ -23,8 +27,6 @@ public:
   void createTable(string &command);
 
   void insertInSchema(string &command);
-
-  void showTables();
 
   void selectTable(string &tableName, string &columns, string &condition);
 

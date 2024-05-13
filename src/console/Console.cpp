@@ -69,8 +69,6 @@ void Console::cleanCommands() {
 void Console::execCommand(string &command) {
   if (command.find("create table") == 0) {
     db.createTable(command);
-  } else if (command == "show tables") {
-    db.showTables();
   }else if (command.find("insert into") == 0) {
     db.insertInSchema(command);
   } else if (command.find("select") == 0){
