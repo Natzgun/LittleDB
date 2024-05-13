@@ -25,6 +25,8 @@ private:
     std::vector<TreeNode> children;
   };
 
+  TreeNode root;
+
   void createFile(const string & path_file);
   void createFileBlock(const string & path_file, int numberOfBlock, int &numSector);
 
@@ -33,6 +35,7 @@ private:
 public:
   Disk();
   Disk(int,int,int,int,int);
+  TreeNode& getRoot();
   void capacityDisk();
   void generateDiskStructure();
   string nameForFiles(int);

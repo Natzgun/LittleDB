@@ -145,6 +145,7 @@ void Database::insertInSchema(string &command) {
     return;
   }
 
+  // Lo anterior era para extraer los datos del comando
   string values = command.substr(initData + 1, endData - initData - 1);
 
   replace(values.begin(), values.end(), ',', '#');
@@ -213,24 +214,6 @@ void Database::readCSV(string &command) {
   cout << "Datos del archivo CSV '" << tablename << ".csv' insertados en la tabla '" << tablename << ".txt'." << endl;
 }
 
-void Database::selectDiskStructure(bool defaultDisk) {
-  if (defaultDisk) {
-    disk.generateDiskStructure();
-    disk.capacityDisk();
-  } else {
-    int plates, tracks, sector, bytes, bytesPerBlock;
-    cout << "Ingrese el número de platos: ";
-    cin >> plates;
-    cout << "Ingrese el número de pistas por superficie: ";
-    cin >> tracks;
-    cout << "Ingrese el número de sectores por pista: ";
-    cin >> sector;
-    cout << "Ingrese el número de bytes por sector: ";
-    cin >> bytes;
-    cout << "Ingrese el numero de bytes por bloque: ";
-    cin >> bytesPerBlock;
-    disk = Disk(plates, tracks, sector, bytes, bytesPerBlock);
-    disk.generateDiskStructure();
-    disk.capacityDisk();
-  }
+void Database::selectDisk(bool defaultDisk) {
+  diskManager.selectDiskStructure(defaultDisk);
 }

@@ -6,6 +6,7 @@ set(SOURCES
         database/Query.cpp
         database/Validator.cpp
         storage/Disk.cpp
+        storage/Disk_manager.cpp
 )
 
 set(HEADERS include)

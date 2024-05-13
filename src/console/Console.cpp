@@ -95,10 +95,10 @@ void Console::selectDisk() {
 
   switch (option) {
     case 1:
-      db.selectDiskStructure(true);
+      db.selectDisk(true);
     break;
     case 2:
-      db.selectDiskStructure(false);
+      db.selectDisk(false);
     break;
     default:
       cout << "Opción inválida." << endl;

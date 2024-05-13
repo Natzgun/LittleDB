@@ -99,6 +99,10 @@ Disk::Disk(int plates, int tracks, int sector, int bytes, int bytesBlock) : numP
   this->blockPerTrack = this->sectorsPerTrack / (this->bytesPerBlock / this->bytesPerSector);
 }
 
+Disk::TreeNode& Disk::getRoot() {
+  return root;
+}
+
 void Disk::capacityDisk() {
   long long cap = (this->numPlatters * 2LL) * this->tracksPerSurface * this->sectorsPerTrack * this->bytesPerSector;
   cout << "Disk capacity: " << cap << " bytes - " << cap / 1048575 << " Megabytes" << endl;
@@ -107,7 +111,7 @@ void Disk::capacityDisk() {
 }
 
 void Disk::generateDiskStructure() {
-  TreeNode root;
+  //TreeNode root;
   root.directory = "../../data/root_directory";
 
   /*
