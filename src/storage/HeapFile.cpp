@@ -11,9 +11,9 @@ list<string> HeapFile::getBlocks() {
 }
 
 void HeapFile::saveToFile() {
-  ofstream file( "../../heapfiles/" + relation + ".txt");
+  ofstream file( "../../data/heapfiles/" + relation + ".txt", ios::app);
   if (!file.is_open()) {
-    cerr << "Error: No se pudo abrir el archivo " << relation << ".txt." << endl;
+    cerr << "HF: No se pudo abrir el archivo " << relation << ".txt." << endl;
     return;
   }
 

@@ -183,12 +183,11 @@ void Database::insertInSchema(string &command) {
 
   int fixedLength = extractFixedLenghtRecord(tableSchema);
   values = formatRecord(tableSchema, values);
-  //diskManager.insertRecord(tableNameFromUser, values, fixedLength);
-  dataFile << values << endl;
+  diskManager.insertRecord(tableNameFromUser, values, fixedLength);
+  //dataFile << values << endl;
 
   dataFile.close();
   schemaFile.close();
-  cout << "Datos insertados en " + tableNameFromUser + ".txt exitosamente Bv." << endl;
 }
 
 

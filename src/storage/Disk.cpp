@@ -17,7 +17,7 @@ void Disk::createFileBlock(const string &path_file, int numberOfBlock, int &numS
   file << "FREE#HEADER#Block" << numberOfBlock << endl;
   file << "sectors#";
   for (int i = 1; i <= this->sectorPerBlock; ++i, ++numSector) {
-    file << "sector" << numSector;
+    file << "Csector" << numSector << ".txt";
     if (i < sectorPerBlock)
       file << "#";
   }
@@ -27,7 +27,7 @@ void Disk::createFileBlock(const string &path_file, int numberOfBlock, int &numS
 
   file << "blockCapacity#" << this->bytesPerBlock << endl;
   for (int i = 1; i <= this->sectorPerBlock; ++i, ++numSector) {
-    file << "Csector" << numSector << "#" << this->bytesPerSector << endl;
+    file << "Csector" << numSector << ".txt" << "#" << this->bytesPerSector << endl;
   }
 
   file.close();
@@ -86,10 +86,10 @@ void Disk::createDirectories(TreeNode &node, int levels, const std::vector<int> 
 }
 
 Disk::Disk() {
-  // Esto es un disco de 32 Megabytes
+  // Esto es un disco de 2 Megabytes
   this->numPlatters = 2;
-  this->tracksPerSurface = 64;
-  this->sectorsPerTrack = 32;
+  this->tracksPerSurface = 16;
+  this->sectorsPerTrack = 8;
   this->bytesPerSector = 4096;
 
   this->bytesPerBlock = 16384;

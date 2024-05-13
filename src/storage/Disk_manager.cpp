@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iostream>
 #include <filesystem>
+#include <regex>
 
 namespace fs = std::filesystem;
 using namespace std;
@@ -36,45 +37,52 @@ void Disk_manager::getCapacityDisk() {
   disk.capacityDisk();
 }
 
+string eliminarSubstring(string& str, const string& substr) {
+  regex pattern(substr + "\\d*\\.txt");
+  str = regex_replace(str, pattern, "");
+  return str;
+}
+
 void Disk_manager::insertRecord(string &relation, string &record, int recordSize) {
-  fs::path path = rootNode.directory;
-  string blockPath = findFreeBlock();
+  string heapFilePath = "../../data/heapfiles/" + relation + ".txt";
+  ifstream heapFile(heapFilePath);
 
-  while (true) {
-    blockPath = openBlock(blockPath, relation);
-
-    if (checkSpaceInBlock(blockPath, recordSize)) {
-      break;
-    }
-
+  string blockPath;
+  if (heapFile.is_open()) {
+    getline(heapFile, blockPath);
+    heapFile.close();
+  } else {
     blockPath = findFreeBlock();
   }
 
+  if (blockPath.empty()) {
+    cerr << "Error: No se encontró un bloque libre." << endl;
+    return;
+  }
+
   string sectorPath = redirectSectorWithSpace(blockPath, recordSize);
+  if (sectorPath.empty()) {
+    cerr << "Error: No se encontró un sector con espacio suficiente." << endl;
+    return;
+  }
 
-  ofstream sectorFile(sectorPath, ios::app);
-
+  sectorPath = eliminarSubstring(sectorPath, "/block");
+  fstream sectorFile(sectorPath, ios::app);
   if (!sectorFile.is_open()) {
     cerr << "Error: No se pudo abrir el archivo " << sectorPath << "." << endl;
     return;
   }
 
+  sectorFile.seekp(0, ios::end);
   sectorFile << record << endl;
   sectorFile.close();
-  // Esto solo parbuscar si ya existe un HeapFile para esta relación
-  /*
-  auto it = find_if(heapFiles.begin(), heapFiles.end(), [&relation](const HeapFile& hf) {
-    return hf.getRelation() == relation;
-  });
-  */
 
-  /*
-  if (it != heapFiles.end()) {
-  } else {
-    HeapFile newHeapFile(relation);
-    heapFiles.push_back(newHeapFile);
-  }
-*/
+  HeapFile hf(relation);
+  hf.addBlock(blockPath);
+  hf.saveToFile();
+
+  cout << "Datos insertados en " + sectorPath + " exitosamente Bv." << endl;
+
 }
 
 string Disk_manager::findFreeBlock() {
@@ -105,7 +113,7 @@ bool Disk_manager::isBlockFree(const fs::path &blockPath) {
 
     blockFile.close();
 
-    return (firstLine == "FREE");
+    return (firstLine.find("FREE") != string::npos);
   }
 
   return false;
@@ -163,12 +171,16 @@ string Disk_manager::redirectSectorWithSpace(const string &blockPath, int record
   }
 
   string line;
-  while (getline(blockFile, line)) {
+  bool encontrado = false;
+
+  while (getline(blockFile, line) && !encontrado) {
     if (line.substr(0, 1) == "C") {
-      int sectorCapacity = stoi(line.substr(9));
+      line = line.substr(1);
+      int sectorCapacity = stoi(line.substr(line.find("#") + 1));
       if (sectorCapacity > recordSize) {
         blockFile.close();
-        return blockPath + "/" + line.substr(1, 7);
+        encontrado = true;
+        return blockPath + "/" + line.substr(0, line.find("#"));
       }
     }
   }
