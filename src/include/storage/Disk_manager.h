@@ -7,7 +7,7 @@
 class Disk_manager {
 private:
   Disk disk;
-  list<HeapFile> heapFiles;
+  HeapFile heapFile;
   TreeNode& rootNode;
 
 public:
@@ -16,9 +16,9 @@ public:
   void getCapacityDisk();
   void insertRecord(string &relation, string &record, int recordSize);
 
-  string findFreeBlock();
+  void findFreeBlock();
 
-  string searchFreeBlockInTree(const TreeNode &node);
+  void searchFreeBlockInTree(const TreeNode &node);
 
   bool isBlockFree(const fs::path &blockPath);
 

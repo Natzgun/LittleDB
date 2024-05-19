@@ -5,26 +5,29 @@
 #include <list>
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
 class HeapFile {
 private:
-  string relation;
-  list<string> blocks;
+  string pathHeapFile;
+  vector<string> freeBlocks;
 
 public:
-  HeapFile(string relation);
+  HeapFile(string pathHF);
 
-  void addBlock(string block);
+  void addFreeBlock(string block);
 
-  list<string> getBlocks();
+  vector<string> getBlocks();
 
-  void saveToFile();
+  void saveToFileFreeBlocks();
 
-  void loadFromFile();
+  void loadFromFileFreeBlocks();
 
-  string getRelation() const;
+  static void addBlockToRelation(string relation, string block);
+
+  string getPathHF() const;
 };
 
 #endif //HEAPFILE_H

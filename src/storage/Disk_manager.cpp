@@ -8,13 +8,18 @@
 namespace fs = std::filesystem;
 using namespace std;
 
-Disk_manager::Disk_manager() : rootNode(disk.getRoot()) {
+Disk_manager::Disk_manager() : heapFile("FreeBlocksHF"), rootNode(disk.getRoot()) {
 }
 
 void Disk_manager::selectDiskStructure(bool defaultDisk) {
   if (defaultDisk) {
     disk.generateDiskStructure();
     disk.capacityDisk();
+    /* Despues de generar la estructura del disco custom carga
+     * el heapFile con los bloques libres
+     */
+    findFreeBlock();
+    heapFile.saveToFileFreeBlocks();
   } else {
     int plates, tracks, sector, bytes, bytesPerBlock;
     cout << "Ingrese el número de platos: ";
@@ -30,6 +35,12 @@ void Disk_manager::selectDiskStructure(bool defaultDisk) {
     disk = Disk(plates, tracks, sector, bytes, bytesPerBlock);
     disk.generateDiskStructure();
     disk.capacityDisk();
+
+    /* Despues de generar la estructura del disco custom carga
+     * el heapFile con los bloques libres
+     */
+    findFreeBlock();
+    heapFile.saveToFileFreeBlocks();
   }
 }
 
@@ -44,6 +55,7 @@ string eliminarSubstring(string& str, const string& substr) {
 }
 
 void Disk_manager::insertRecord(string &relation, string &record, int recordSize) {
+  /*
   string heapFilePath = "../../data/heapfiles/" + relation + ".txt";
   ifstream heapFile(heapFilePath);
 
@@ -77,31 +89,29 @@ void Disk_manager::insertRecord(string &relation, string &record, int recordSize
   sectorFile << record << endl;
   sectorFile.close();
 
+  /*
   HeapFile hf(relation);
   hf.addBlock(blockPath);
   hf.saveToFile();
+  #1#
 
   cout << "Datos insertados en " + sectorPath + " exitosamente Bv." << endl;
 
+*/
 }
 
-string Disk_manager::findFreeBlock() {
-  return searchFreeBlockInTree(rootNode);
+void Disk_manager::findFreeBlock() {
+  searchFreeBlockInTree(rootNode);
 }
 
-string Disk_manager::searchFreeBlockInTree(const TreeNode &node) {
+void Disk_manager::searchFreeBlockInTree(const TreeNode &node) {
   if (isBlockFree(node.directory)) {
-    return node.directory.string();
+    heapFile.addFreeBlock(node.directory.string());
   }
 
-  for (const auto &child: node.children) {
-    string freeBlock = searchFreeBlockInTree(child);
-    if (!freeBlock.empty()) {
-      return freeBlock;
-    }
+  for (const auto &child : node.children) {
+    searchFreeBlockInTree(child);
   }
-
-  return "";
 }
 
 bool Disk_manager::isBlockFree(const fs::path &blockPath) {

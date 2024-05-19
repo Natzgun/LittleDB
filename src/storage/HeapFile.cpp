@@ -1,44 +1,81 @@
 #include "storage/HeapFile.h"
 
-HeapFile::HeapFile(string relation) : relation(relation) {}
+#include <regex>
 
-void HeapFile::addBlock(string block) {
-  blocks.push_back(block);
+HeapFile::HeapFile(string pathHF) : pathHeapFile(pathHF) {}
+
+int extractBlockNumber(const std::string& block) {
+  regex rgx(R"(block(\d+)\.txt)");
+  smatch match;
+  if (regex_search(block, match, rgx)) {
+    return stoi(match[1].str());
+  }
+  return -1;
 }
 
-list<string> HeapFile::getBlocks() {
-  return blocks;
-}
-
-void HeapFile::saveToFile() {
-  ofstream file( "../../data/heapfiles/" + relation + ".txt", ios::app);
-  if (!file.is_open()) {
-    cerr << "HF: No se pudo abrir el archivo " << relation << ".txt." << endl;
+void HeapFile::addFreeBlock(string block) {
+  //freeBlocks.push_back(block);
+  int newBlockNumber = extractBlockNumber(block);
+  if (newBlockNumber == -1) {
+    // Handle error: Esto no es un bloque
     return;
   }
 
-  for (const string& block : blocks) {
+  auto it = freeBlocks.begin();
+  while (it != freeBlocks.end()) {
+    int currentBlockNumber = extractBlockNumber(*it);
+    if (currentBlockNumber > newBlockNumber) {
+      break;
+    }
+    ++it;
+  }
+  freeBlocks.insert(it, block);
+}
+
+vector<string> HeapFile::getBlocks() {
+  return freeBlocks;
+}
+
+void HeapFile::saveToFileFreeBlocks() {
+  ofstream file( "../../data/heapfiles/" + pathHeapFile + ".txt");
+  if (!file.is_open()) {
+    cerr << "HF: No se pudo abrir el archivo " << pathHeapFile << ".txt" << endl;
+    return;
+  }
+
+  for (const string& block : freeBlocks) {
     file << block << endl;
   }
 
   file.close();
 }
 
-void HeapFile::loadFromFile() {
-  ifstream file(relation + ".txt");
+void HeapFile::loadFromFileFreeBlocks() {
+  ifstream file( "../../data/heapfiles/" + pathHeapFile + ".txt");
   if (!file.is_open()) {
-    cerr << "Error: No se pudo abrir el archivo " << relation << ".txt." << endl;
+    cerr << "HF: No se pudo abrir el archivo " << pathHeapFile << ".txt" << endl;
     return;
   }
 
   string block;
   while (getline(file, block)) {
-    blocks.push_back(block);
+    freeBlocks.push_back(block);
   }
 
   file.close();
 }
 
-string HeapFile::getRelation() const {
-  return this->relation;
+void HeapFile::addBlockToRelation(string relation, string block) {
+  ofstream file( "../../data/heapfiles/" + relation + ".txt", ios::app);
+  if (!file.is_open()) {
+    cerr << "Add Block: No se pudo abrir el archivo " << relation << ".txt" << endl;
+    return;
+  }
+
+  file << block << endl;
+  file.close();
+}
+
+string HeapFile::getPathHF() const {
+  return this->pathHeapFile;
 }
