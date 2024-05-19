@@ -55,6 +55,8 @@ void Disk::createDirectories(TreeNode &node, int levels, const std::vector<int> 
       createFile(pathSector + std::to_string(sectorNumerationForFile++) + ".txt");
       totalFiles++;
 
+      /* En esta condicion solo se ejecuta despues de generar la estructrura de cada pista
+       * crea los bloques corresponiendes junto a sus headers correspondientes */
       if (totalFiles == directoriesPerLevel[0]) {
         for (int i = 0; i < this->blockPerTrack; ++i, ++numBlock) {
           //createFileBlock(node.directory.parent_path().string() + "/block" + std::to_string(numBlock + 1) + ".txt", (numBlock + 1), numSector);
@@ -67,9 +69,19 @@ void Disk::createDirectories(TreeNode &node, int levels, const std::vector<int> 
           node.children.push_back(blockNode);
         }
         totalFiles = 0;
+      }
 
-        // Con esto se reinicia el contador de sectores
-        //numSector = 1;
+      /* Esa condicion reinicia los contadores de bloques y sectores cuando termina
+       * de generar la estructura de una superficie (un plato) con el objetivo de que
+       * cada plato tengan la misma estructura, por ejemplo si voy a ocupar
+       * el bloque 1 del plato1, el proximo a ocupar seria el bloque 1 del plato2 (para HEAPfile)
+       */
+
+      if (sectorNumerationForFile == 1+(this->tracksPerSurface * this->sectorsPerTrack) ) {
+        // Con esto se reinicia el contador de sectores en las cabeceras de los bloques
+        numBlock = 0;
+        numSector = 1;
+        sectorNumerationForFile = 1;
       }
     }
 
@@ -88,13 +100,13 @@ void Disk::createDirectories(TreeNode &node, int levels, const std::vector<int> 
 Disk::Disk() {
   // Esto es un disco de 2 Megabytes
   this->numPlatters = 2;
-  this->tracksPerSurface = 16;
-  this->sectorsPerTrack = 8;
+  this->tracksPerSurface = 8;
+  this->sectorsPerTrack = 4;
   this->bytesPerSector = 4096;
 
-  this->bytesPerBlock = 16384;
+  this->bytesPerBlock = 8192;
   this->sectorPerBlock = this->bytesPerBlock / this->bytesPerSector;
-  this->blockPerTrack = this->sectorsPerTrack / (this->bytesPerBlock / this->bytesPerSector);
+  this->blockPerTrack = this->sectorsPerTrack / this->sectorPerBlock;
 }
 
 Disk::Disk(int plates, int tracks, int sector, int bytes, int bytesBlock) : numPlatters(plates),
@@ -112,7 +124,7 @@ TreeNode &Disk::getRoot() {
 
 void Disk::capacityDisk() {
   long long cap = (this->numPlatters * 2LL) * this->tracksPerSurface * this->sectorsPerTrack * this->bytesPerSector;
-  cout << "Disk capacity: " << cap << " bytes - " << cap / 1048575 << " Megabytes" << endl;
+  cout << "Disk capacity: " << cap << " bytes - " << static_cast<double>(cap) / 1048575.0 << " Megabytes" << endl;
   cout << "Numero de bloques: " << blockPerTrack << endl;
   cout << "Numero de sectores por bloque: " << sectorPerBlock << endl;
 }
