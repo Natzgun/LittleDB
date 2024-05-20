@@ -71,6 +71,51 @@ string Database::formatRecord(string &relation, string &record) {
   string partRelation, partRecord;
   string result = "";
 
+  while (getline(ssRelation, partRelation, '#')) {
+    string dataType;
+    int length;
+
+    // Leer el tipo de dato y el tamaño del campo
+    getline(ssRelation, dataType, '#');
+    getline(ssRelation, partRelation, '#');
+    length = stoi(partRelation);
+
+    partRecord = "";
+
+    if (ssRecord.peek() == '"') {
+      ssRecord.get(); // Descartamos la primera comilla
+      while (true) {
+        string temp;
+        getline(ssRecord, temp, '"'); // Leemos hasta la siguiente comilla
+        partRecord += temp;
+        if (ssRecord.peek() == ',') {
+          ssRecord.get(); // Descartamos la coma después de la comilla de cierre
+          break;
+        } else {
+          char nextChar = ssRecord.get();
+          if (nextChar == EOF) {
+            break;
+          }
+          partRecord += nextChar; // Añadir la comilla que falta ya que no hubo ninguna coma
+        }
+      }
+    } else {
+      getline(ssRecord, partRecord, ',');
+    }
+
+    partRecord.resize(length, ' ');
+    result += partRecord;
+  }
+
+  return result;
+}
+/*
+string Database::formatRecord(string &relation, string &record) {
+  stringstream ssRelation(relation);
+  stringstream ssRecord(record);
+  string partRelation, partRecord;
+  string result = "";
+
   while (getline(ssRelation, partRelation, '#') && getline(ssRecord, partRecord, ',')) {
     getline(ssRelation, partRelation, '#');
     getline(ssRelation, partRelation, '#');
@@ -83,6 +128,7 @@ string Database::formatRecord(string &relation, string &record) {
 
   return result;
 }
+*/
 
 Database::Database() {
 }
@@ -181,6 +227,9 @@ void Database::insertInSchema(string &command) {
   // Lo anterior era para extraer los datos del comando
   string values = command.substr(initData + 1, endData - initData - 1);
 
+  /* Se extrae el tamaño del registro se le da su formato adecuado segun la longitud
+   * de cada registro y se inserta en el archivo de datos correspondiente
+   */
   int fixedLength = extractFixedLenghtRecord(tableSchema);
   values = formatRecord(tableSchema, values);
   diskManager.insertRecord(tableNameFromUser, values, fixedLength);
@@ -220,27 +269,29 @@ void Database::readCSV(string &command) {
     return;
   }
 
+  string tableSchema = schemaExists(tablename);
+  tableSchema = tableSchema.substr(tablename.size() + 1);
+
   ifstream csvFile("../../data/usr/db/" + tablename + ".csv");
   if (!csvFile.is_open()) {
     cerr << "Error: No se pudo abrir el archivo CSV '" << tablename << ".csv'." << endl;
     return;
   }
 
-  ofstream outFile("../../data/usr/db/" + tablename + ".txt", ios::app);
-  if (!outFile.is_open()) {
-    cerr << "Error: No se pudo abrir el archivo de la tabla '" << tablename << ".txt' para escritura." << endl;
-    csvFile.close();
-    return;
-  }
+  /* Estas  son las funciones que se encargan de de leer el CSV calcula su tamaño
+   * los formatea y luego los inserta de forma consecutiva a su bloque correspondiente
+   */
+  string lineOfCSV;
+  int fixedLength = extractFixedLenghtRecord(tableSchema);
+  while (getline(csvFile,lineOfCSV)) {
+    if (lineOfCSV.back() == '\r')
+      lineOfCSV.pop_back();
 
-  string csvLine;
-  while (getline(csvFile, csvLine)) {
-    replace(csvLine.begin(), csvLine.end(), ',', '#');
-    outFile << csvLine << endl;
+    string values = formatRecord(tableSchema, lineOfCSV);
+    diskManager.insertRecord(tablename, values, fixedLength);
   }
 
   csvFile.close();
-  outFile.close();
 
   cout << "Datos del archivo CSV '" << tablename << ".csv' insertados en la tabla '" << tablename << ".txt'." << endl;
 }
