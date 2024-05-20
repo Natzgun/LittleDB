@@ -28,6 +28,10 @@ public:
   static void addBlockToRelation(string relation, string block);
 
   string getPathHF() const;
+
+  bool hasFreeBlocks() const;
+
+  string getAndRemoveFirstBlock();
 };
 
 #endif //HEAPFILE_H

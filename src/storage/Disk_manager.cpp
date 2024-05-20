@@ -55,6 +55,31 @@ string eliminarSubstring(string& str, const string& substr) {
 }
 
 void Disk_manager::insertRecord(string &relation, string &record, int recordSize) {
+  string blocksUsedPath = "../../data/heapfiles/" + relation + ".txt";
+  ifstream bUsed(blocksUsedPath);
+
+  string blockPath;
+  if (bUsed.is_open()) {
+    getline(bUsed, blockPath);
+    bUsed.close();
+  } else {
+    blockPath = heapFile.getAndRemoveFirstBlock();
+    HeapFile::addBlockToRelation(relation,blockPath);
+    heapFile.saveToFileFreeBlocks();
+  }
+
+  if (blockPath.empty()) {
+    cerr << "Error: No se encontró un bloque libre." << endl;
+    return;
+  }
+
+  ofstream file(blockPath, std::ios::app);
+
+  file << record << endl;
+
+  file.close();
+
+  cout << "Datos insertados en " + blockPath + " exitosamente Bv." << endl;
   /*
   string heapFilePath = "../../data/heapfiles/" + relation + ".txt";
   ifstream heapFile(heapFilePath);
@@ -155,7 +180,7 @@ bool Disk_manager::checkSpaceInBlock(const string &blockPath, int recordSize) {
   ifstream blockFile(blockPath);
 
   if (!blockFile.is_open()) {
-    cerr << "Error: No se pudo abrir el archivo " << blockPath << "." << endl;
+    cerr << "DM: No se pudo abrir el archivo " << blockPath << "." << endl;
     return false;
   }
 

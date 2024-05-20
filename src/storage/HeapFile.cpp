@@ -79,3 +79,16 @@ void HeapFile::addBlockToRelation(string relation, string block) {
 string HeapFile::getPathHF() const {
   return this->pathHeapFile;
 }
+
+bool HeapFile::hasFreeBlocks() const {
+  return !freeBlocks.empty();
+}
+
+string HeapFile::getAndRemoveFirstBlock() {
+  if (freeBlocks.empty()) {
+    return "";
+  }
+  string firstBlock = freeBlocks.front();
+  freeBlocks.erase(freeBlocks.begin());
+  return firstBlock;
+}
