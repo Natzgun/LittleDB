@@ -160,6 +160,10 @@ void Disk::generateDiskStructure() {
   cout << "------------------------------------------------" << endl;
 }
 
+int Disk::getNumOfSectors() const {
+  return sectorPerBlock;
+}
+
 string Disk::nameForFiles(int level) {
   if (level == 0) {
     return "sector";

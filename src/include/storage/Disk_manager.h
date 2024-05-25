@@ -22,6 +22,8 @@ public:
 
   bool isBlockFree(const fs::path &blockPath);
 
+  void writeRecordInSectors(string &relation);
+
   string openBlock(const string &blockPath, const string &relationName);
 
   bool checkSpaceInBlock(const string &blockPath, int recordSize);

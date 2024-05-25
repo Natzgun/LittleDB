@@ -154,6 +154,25 @@ bool Disk_manager::isBlockFree(const fs::path &blockPath) {
   return false;
 }
 
+void Disk_manager::writeRecordInSectors(string &relation) {
+  /* Aqui abro la relacion para saber de que bloque quiero escribir en el Disco (sectores)*/
+  string blocksUsedPath = "../../data/heapfiles/" + relation + ".txt";
+  ifstream bUsed(blocksUsedPath);
+
+  string blockPath;
+  if (bUsed.is_open()) {
+    getline(bUsed, blockPath);
+    bUsed.close();
+  }
+
+  /* Se optiene el nombre de la ruta para poder abrir los sectores correspondientes
+   * y escribir en ellos
+   */
+  ifstream blockFile(blockPath);
+  blockPath = eliminarSubstring(blockPath, "/block");
+
+}
+
 
 string Disk_manager::openBlock(const string &blockPath, const string &relationName) {
   fstream blockFile(blockPath, ios::in | ios::out);

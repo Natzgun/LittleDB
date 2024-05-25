@@ -28,12 +28,13 @@ private:
 
   void createDirectories(TreeNode& node, int levels, const std::vector<int>& directoriesPerLevel);
 
+  string nameForFiles(int);
 public:
   Disk();
   Disk(int,int,int,int,int);
   TreeNode& getRoot();
   void capacityDisk();
   void generateDiskStructure();
-  string nameForFiles(int);
+  int getNumOfSectors() const;
 };
 #endif //DISK_H
