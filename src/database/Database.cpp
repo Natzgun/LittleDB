@@ -65,8 +65,8 @@ int Database::extractFixedLenghtRecord(string &relation) {
   return sum;
 }
 
-string Database::formatRecord(string &relation, string &record) {
-  stringstream ssRelation(relation);
+string Database::formatRecordRLF(string &relationSchema, string &record) {
+  stringstream ssRelation(relationSchema);
   stringstream ssRecord(record);
   string partRelation, partRecord;
   string result = "";
@@ -109,26 +109,65 @@ string Database::formatRecord(string &relation, string &record) {
 
   return result;
 }
-/*
-string Database::formatRecord(string &relation, string &record) {
-  stringstream ssRelation(relation);
-  stringstream ssRecord(record);
-  string partRelation, partRecord;
-  string result = "";
 
-  while (getline(ssRelation, partRelation, '#') && getline(ssRecord, partRecord, ',')) {
-    getline(ssRelation, partRelation, '#');
-    getline(ssRelation, partRelation, '#');
-    int length = stoi(partRelation);
+string Database::formatRecordRLV(string &relationSchema, string &record) {
+  /*
+  string variablePairPosition = "";
+  string fixedRecord = "";
+  string bitsMap = "";
+  string variableRecord = "";
 
-    partRecord.resize(length, ' ');
+  return variableRecord + "|" + fixedRecord + "|" + bitsMap + "|" + variablePairPosition;
+  */
 
-    result += partRecord;
+  string variablePairPosition = "";
+  string fixedRecord = "";
+  string bitsMap = "";
+  string variableRecord = "";
+
+  istringstream schemaStream(relationSchema);
+  istringstream recordStream(record);
+
+  string schemaToken, recordToken;
+
+  int currentPos = 0; // Inicializamos currentPos en 0
+  int variableStartPos = 0;
+  int columnCount = 0;
+
+  while (getline(schemaStream, schemaToken, '#')) {
+    string columnName = schemaToken;
+    getline(schemaStream, schemaToken, '#');
+    string columnType = schemaToken;
+    getline(schemaStream, schemaToken, '#');
+    string columnSize = schemaToken;
+
+    getline(recordStream, recordToken, ',');
+
+    if (columnSize == "v") {
+      variablePairPosition += to_string(currentPos) + "," + to_string(recordToken.size()) + "|";
+      variableRecord += recordToken;
+      currentPos += recordToken.size(); // Actualizamos la posición actual
+    } else {
+      int size = stoi(columnSize);
+      if (columnType == "entero" || columnType == "string") {
+        fixedRecord += recordToken;
+        fixedRecord.append(size - recordToken.size(), ' ');
+        currentPos += size; // Actualizamos la posición actual
+      }
+    }
+    columnCount++;
   }
 
-  return result;
+  // Elimina el último '|' de variablePairPosition si no está vacío
+  if (!variablePairPosition.empty()) {
+    variablePairPosition.pop_back();
+  }
+
+  // Generar el mapa de bits con tantos ceros como columnas haya
+  bitsMap = string(columnCount, '0');
+
+  return variablePairPosition + "|" + fixedRecord + "|" + bitsMap + "|" + variableRecord;
 }
-*/
 
 Database::Database() {
 }
@@ -209,18 +248,19 @@ void Database::insertInSchema(string &command) {
   // cout << tableNameFromUser << endl;
 
 
+  /*
   ofstream dataFile("../../data/root_directory/platter1/track1/sector1.txt", ios::app);
 
   if (!dataFile.is_open()) {
     cerr << "Error al abrir .txt" << endl;
     return;
   }
+  */
 
   size_t initData = command.find('(');
   size_t endData = command.find(')');
   if (initData == string::npos || endData == string::npos || endData <= initData) {
     cerr << "Inserta de forma correcta (value, value, ...)" << endl;
-    dataFile.close();
     return;
   }
 
@@ -231,11 +271,19 @@ void Database::insertInSchema(string &command) {
    * de cada registro y se inserta en el archivo de datos correspondiente
    */
   int fixedLength = extractFixedLenghtRecord(tableSchema);
-  values = formatRecord(tableSchema, values);
+  //values = formatRecordRLF(tableSchema, values);
+  char mode;
+  cout << "Variable o Fija: ";
+  cin >> mode;
+  if (mode == 'V') {
+    values = formatRecordRLV(tableSchema, values);
+  } else {
+    values = formatRecordRLF(tableSchema, values);
+  }
+  //values = formatRecordRLF(tableSchema, values);
   diskManager.insertRecord(tableNameFromUser, values, fixedLength);
   //dataFile << values << endl;
 
-  dataFile.close();
   schemaFile.close();
 }
 
@@ -283,11 +331,11 @@ void Database::readCSV(string &command) {
    */
   string lineOfCSV;
   int fixedLength = extractFixedLenghtRecord(tableSchema);
-  while (getline(csvFile,lineOfCSV)) {
+  while (getline(csvFile, lineOfCSV)) {
     if (lineOfCSV.back() == '\r')
       lineOfCSV.pop_back();
 
-    string values = formatRecord(tableSchema, lineOfCSV);
+    string values = formatRecordRLF(tableSchema, lineOfCSV);
     diskManager.insertRecord(tablename, values, fixedLength);
   }
 

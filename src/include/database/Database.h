@@ -17,7 +17,9 @@ private:
   int getColumnIndex(string &tableName, string &columns);
   int extractFixedLenghtRecord(string &relation);
 
-  string formatRecord(string &relation, string &record);
+  /* Estas dos funciones implementan Longitud Fija y Variable*/
+  string formatRecordRLF(string &relationSchema, string &record);
+  string formatRecordRLV(string &relationSchema, string &record);
 
   Validator validator;
   Disk_manager diskManager;
