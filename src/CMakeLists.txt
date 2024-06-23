@@ -5,6 +5,7 @@ set(SOURCES
         database/Database.cpp
         database/Query.cpp
         database/Validator.cpp
+        database/DatabaseMediator.cpp
         storage/Disk.cpp
         storage/Disk_manager.cpp
         storage/HeapFile.cpp

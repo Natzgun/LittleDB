@@ -80,49 +80,7 @@ void Disk_manager::insertRecord(string &relation, string &record, int recordSize
   file.close();
 
   cout << "Datos insertados en " + blockPath + " exitosamente Bv." << endl;
-  /*
-  string heapFilePath = "../../data/heapfiles/" + relation + ".txt";
-  ifstream heapFile(heapFilePath);
 
-  string blockPath;
-  if (heapFile.is_open()) {
-    getline(heapFile, blockPath);
-    heapFile.close();
-  } else {
-    blockPath = findFreeBlock();
-  }
-
-  if (blockPath.empty()) {
-    cerr << "Error: No se encontró un bloque libre." << endl;
-    return;
-  }
-
-  string sectorPath = redirectSectorWithSpace(blockPath, recordSize);
-  if (sectorPath.empty()) {
-    cerr << "Error: No se encontró un sector con espacio suficiente." << endl;
-    return;
-  }
-
-  sectorPath = eliminarSubstring(sectorPath, "/block");
-  fstream sectorFile(sectorPath, ios::app);
-  if (!sectorFile.is_open()) {
-    cerr << "Error: No se pudo abrir el archivo " << sectorPath << "." << endl;
-    return;
-  }
-
-  sectorFile.seekp(0, ios::end);
-  sectorFile << record << endl;
-  sectorFile.close();
-
-  /*
-  HeapFile hf(relation);
-  hf.addBlock(blockPath);
-  hf.saveToFile();
-  #1#
-
-  cout << "Datos insertados en " + sectorPath + " exitosamente Bv." << endl;
-
-*/
 }
 
 void Disk_manager::findFreeBlock() {
