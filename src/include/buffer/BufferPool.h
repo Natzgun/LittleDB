@@ -28,7 +28,7 @@ public:
   Frame &getFrame(int frameID); /* Obtener un frame en especifico */
   void modifyPinInExistingFrame(int pageID, char flag); /* Incrementar el pin de un frame */
   void setPage(Frame &frame, int frameID);
-
+  
   /* Cargar una pagina en un frame usando un frameID que nosostros le daremos */
   void printPage(int frameID); /* Mostrar el contenido de la pagina, pero hay que comprobar que este el frameid */
   void addRecord(int frameID, string record); /* Usando la ubicacion del frame la agregamos un registro */
