@@ -16,7 +16,7 @@ class DatabaseMediator {
     Disk_manager diskManager;
   public:
   DatabaseMediator();
-    void addRecord(string& relation, string record);
+    void addRecord(string& relation, string record, bool bucle = false, bool end = false);
     void adminRam();
 
     void selectDiskStructureMediator(bool defaultDisk);
