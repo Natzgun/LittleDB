@@ -9,6 +9,7 @@ private:
   Disk disk;
   HeapFile heapFile;
   TreeNode& rootNode;
+  vector<int> dataDisk;
 
 public:
   Disk_manager();
@@ -29,5 +30,7 @@ public:
   bool checkSpaceInBlock(const string &blockPath, int recordSize);
 
   string redirectSectorWithSpace(const string &blockPath, int recordSize);
+
+  vector<int> getDataDisk() const;
 };
 #endif //DISK_MANAGER_H

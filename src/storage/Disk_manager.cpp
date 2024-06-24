@@ -32,6 +32,13 @@ void Disk_manager::selectDiskStructure(bool defaultDisk) {
     cin >> bytes;
     cout << "Ingrese el numero de bytes por bloque: ";
     cin >> bytesPerBlock;
+
+    int sectorPerBlock = bytesPerBlock/bytes;
+    int blockPerTrack = sector/sectorPerBlock;
+    dataDisk.push_back(plates*2);
+    dataDisk.push_back(tracks);
+    dataDisk.push_back(blockPerTrack);
+
     disk = Disk(plates, tracks, sector, bytes, bytesPerBlock);
     disk.generateDiskStructure();
     disk.capacityDisk();
@@ -199,4 +206,8 @@ string Disk_manager::redirectSectorWithSpace(const string &blockPath, int record
 
   blockFile.close();
   return "";
+}
+
+vector<int> Disk_manager::getDataDisk() const {
+  return dataDisk;
 }
