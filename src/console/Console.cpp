@@ -77,7 +77,9 @@ void Console::execCommand(string &command) {
     cleanCommands();
   } else if (command.find("ReadCSV") == 0){
     db.readCSV(command);
-  } else {
+  } else if (command.find("Ram") == 0) {
+    db.viewRam();
+  }else {
     cout << "Comando no reconocido." << endl;
   }
 }

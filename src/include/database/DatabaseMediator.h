@@ -8,12 +8,16 @@
 
 using namespace std;
 
-class mediator {
+class DatabaseMediator {
   private:
-    BufferManager buffManager;
-    Disk_manager disManager;
+    BufferManager bfManager;
+    Disk_manager diskManager;
   public:
+  DatabaseMediator();
     void addRecord(string& relation, string record);
+    void adminRam();
+
+    void selectDiskStructureMediator(bool defaultDisk);
 };
 
 #endif

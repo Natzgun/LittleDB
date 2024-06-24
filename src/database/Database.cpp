@@ -281,7 +281,7 @@ void Database::insertInSchema(string &command) {
     values = formatRecordRLF(tableSchema, values);
   }
   //values = formatRecordRLF(tableSchema, values);
-  diskManager.insertRecord(tableNameFromUser, values, fixedLength);
+  dbMediator.addRecord(tableNameFromUser, values);
   //dataFile << values << endl;
 
   schemaFile.close();
@@ -336,7 +336,7 @@ void Database::readCSV(string &command) {
       lineOfCSV.pop_back();
 
     string values = formatRecordRLF(tableSchema, lineOfCSV);
-    diskManager.insertRecord(tablename, values, fixedLength);
+    dbMediator.addRecord(tablename, values);
   }
 
   csvFile.close();
@@ -345,5 +345,9 @@ void Database::readCSV(string &command) {
 }
 
 void Database::selectDisk(bool defaultDisk) {
-  diskManager.selectDiskStructure(defaultDisk);
+  dbMediator.selectDiskStructureMediator(defaultDisk);
+}
+
+void Database::viewRam() {
+  dbMediator.adminRam();
 }

@@ -6,6 +6,7 @@
 #define DATABASE_H
 #include <iostream>
 
+#include "DatabaseMediator.h"
 #include "Validator.h"
 #include "storage/Disk_manager.h"
 using namespace std;
@@ -22,7 +23,7 @@ private:
   string formatRecordRLV(string &relationSchema, string &record);
 
   Validator validator;
-  Disk_manager diskManager;
+  DatabaseMediator dbMediator;
 public:
   Database();
 
@@ -35,5 +36,7 @@ public:
   void readCSV(string &command);
 
   void selectDisk(bool defaultDisk);
+
+  void viewRam();
 };
 #endif //DATABASE_H
