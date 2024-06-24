@@ -40,11 +40,28 @@ void DatabaseMediator::loadBlockMediator(int blockNumber, char mode) {
 DatabaseMediator::DatabaseMediator() : bfManager(4) {
 }
 
-void DatabaseMediator::addRecord(string &relation, string record) {
-  int pageID;
-  cout << "ID de la pagina: ";
-  cin >> pageID;
-  bfManager.addRecordInBuffer(pageID, record);
+void DatabaseMediator::addRecord(string &relation, string record, bool end,bool bucle) {
+  static int pageID = -1;
+  static bool first = true;
+
+  if(end){
+    first = true;
+    pageID = -1;
+    return;
+  }
+
+  if(!bucle){
+    cout << "ID de la pagina: ";
+    cin >> pageID;
+    bfManager.addRecordInBuffer(pageID, record);
+  }else{
+    if(first){
+      cout << "ID de la pagina: ";
+      cin >> pageID;
+      first = false;
+    }
+    bfManager.addRecordInBuffer(pageID, record);
+  }
 }
 
 void DatabaseMediator::adminRam() {
