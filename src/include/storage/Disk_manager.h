@@ -31,6 +31,6 @@ public:
 
   string redirectSectorWithSpace(const string &blockPath, int recordSize);
 
-  vector<int> getDataDisk() const;
+  vector<int> getDataDisk();
 };
 #endif //DISK_MANAGER_H

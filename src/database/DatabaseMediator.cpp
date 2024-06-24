@@ -1,6 +1,42 @@
 #include "database/DatabaseMediator.h"
 #include "buffer/BufferManager.h"
 
+void DatabaseMediator::loadBlockMediator(int blockNumber, char mode) {
+  vector<int> dataDisk = diskManager.getDataDisk();
+  int plattersPerDisk = dataDisk[0];
+  int tracksPerPlatter = dataDisk[1];
+  int blocksPerTrack = dataDisk[2];
+
+  int totalBlocksPerDisk = plattersPerDisk * tracksPerPlatter * blocksPerTrack;
+
+  // Calcular el disco
+  int disk = (blockNumber - 1) / totalBlocksPerDisk + 1;
+  int blockWithinDisk = (blockNumber - 1) % totalBlocksPerDisk;
+
+  // Calcular el plato
+  int plattersPerDiskOffset = blockWithinDisk / (tracksPerPlatter * blocksPerTrack);
+  int platter = plattersPerDiskOffset + 1;
+
+  // Calcular la pista
+  int trackOffset = blockWithinDisk % (tracksPerPlatter * blocksPerTrack);
+  int track = trackOffset / blocksPerTrack + 1;
+
+  // Calcular el bloque
+  int block = blockNumber%(tracksPerPlatter * blocksPerTrack);
+  if(block == 0){
+    block = tracksPerPlatter * blocksPerTrack;
+  }
+
+  // string blockPath =  "../../data/root_directory/platter" + to_string(platter) + "/track" + to_string(track) + "/block" + to_string(block) + ".txt";
+  string splatter = to_string(platter);
+  string strack = to_string(track);
+  string sblock = to_string(block);
+  string blockPath = "../../data/root_directory/platter" + splatter + "/track" + strack + "/block" + sblock + ".txt";
+  //string blockPath =  "../../data/root_directory/platter" + std::to_string(platter) + "/track" + std::to_string(track) + "/block" + std::to_string(block) + ".txt";
+  //string blockPath = "../../data/12/2343/asd.txt";
+  bfManager.loadPageFromDiskClock(blockNumber, blockPath, mode);
+}
+
 DatabaseMediator::DatabaseMediator() : bfManager(4) {
 }
 
@@ -39,10 +75,7 @@ void DatabaseMediator::adminRam() {
         int pageid;
         cout << "Page ID: ";
         cin >> pageid;
-        string blockPath;
-        cout << "Block Path: ";
-        cin >> blockPath;
-        bfManager.loadPageFromDiskClock(pageid, blockPath, mode);
+        loadBlockMediator(pageid, mode);
         break;
       }
       case 2: {

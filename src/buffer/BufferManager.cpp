@@ -71,21 +71,31 @@ void BufferManager::loadPageFromDiskClock(int pageID, string path, char _mode) {
   }
 
   // Open the file
-  int capacity;
+  int blockCapacity = 0;
   std::string content;
   std::ifstream file(path);
   if (file.is_open()) {
     std::string line;
-
-    if (std::getline(file, line)) {
-      capacity = std::stoi(line);
-    }
+    std::string target = "blockCapacity#";
+    size_t pos;
 
     while (std::getline(file, line)) {
-      content += line + "\n";
+      pos = line.find(target);
+      if (pos != std::string::npos) {
+        blockCapacity = std::stoi(line.substr(pos + target.length()));
+        break;
+      }
+    }
+
+    file.close();
+
+    if (blockCapacity != 0) {
+      std::cout << "El blockCapacity es: " << blockCapacity << std::endl;
+    } else {
+      std::cout << "No se encontró blockCapacity en el archivo." << std::endl;
     }
   } else {
-    cout << "error al cargar el archivo ---> " << path << "\n";
+    std::cout << "Error al cargar el archivo." << std::endl;
   }
 
   int valueF = bpool.findFreeFrame();
@@ -93,7 +103,7 @@ void BufferManager::loadPageFromDiskClock(int pageID, string path, char _mode) {
     Page tempPage;
     tempPage.setName(path);
     tempPage.setPageId(pageID);
-    tempPage.setSize(capacity);
+    tempPage.setSize(blockCapacity);
     tempPage.setContentRFL(content);
 
     bpool.setPageInFrame2(valueF, pageID, mode, tempPage);
@@ -138,6 +148,29 @@ void BufferManager::killProcess(int pageID) {
 void BufferManager::printTableFrame() { bpool.printTableFrame(); }
 
 void BufferManager::savePageToDisk(int pageID) {
+  if (!bpool.isPageLoaded(pageID)) {
+    cout << "La página con ID " << pageID << " no está cargada en el BufferPool.\n";
+    return;
+  }
+
+  Page& page = bpool.getFrame(bpool.getFrameId(pageID)).getPage();
+
+  string path = page.getName();
+  string content = page.getContent();
+
+  int sizePageNormal = page.getSize();
+
+  ofstream file(path);
+  if (file.is_open()) {
+    file << sizePageNormal << endl;
+    file << content << endl;
+  } else {
+    cout << "No se pudo abrir el archivo para guardar la pagina" << endl;
+    file.close();
+    return;
+  }
+  file.close();
+
   cout << "=============================================\n";
   cout << "Pagina guardado en disco :D" << endl;
   cout << "=============================================\n";

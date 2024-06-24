@@ -10,6 +10,8 @@ using namespace std;
 
 class DatabaseMediator {
   private:
+    void loadBlockMediator(int blockID, char mode);
+
     BufferManager bfManager;
     Disk_manager diskManager;
   public:

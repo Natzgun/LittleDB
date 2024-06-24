@@ -13,6 +13,9 @@ Disk_manager::Disk_manager() : heapFile("FreeBlocksHF"), rootNode(disk.getRoot()
 
 void Disk_manager::selectDiskStructure(bool defaultDisk) {
   if (defaultDisk) {
+    dataDisk.push_back(4);
+    dataDisk.push_back(8);
+    dataDisk.push_back(2);
     disk.generateDiskStructure();
     disk.capacityDisk();
     /* Despues de generar la estructura del disco custom carga
@@ -208,6 +211,6 @@ string Disk_manager::redirectSectorWithSpace(const string &blockPath, int record
   return "";
 }
 
-vector<int> Disk_manager::getDataDisk() const {
+vector<int> Disk_manager::getDataDisk() {
   return dataDisk;
 }
