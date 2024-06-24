@@ -25,7 +25,7 @@ public:
 
   void updatePinnedPage();
 
-  void updatePage(int pageID);
+  void updatePage(int pageID, string& record);
 
   void printTableFrame();
 
@@ -36,6 +36,9 @@ public:
   void unpinnedPage(int pageID);
 
   void showPageDetails(int pageID);
+
+  void addRecordInBuffer(int pageID, string record);
+
 };
 
 #endif  // BUFFERMANAGER_H

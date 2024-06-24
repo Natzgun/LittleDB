@@ -159,7 +159,7 @@ void BufferManager::updatePinnedPage() {
   }
 }
 
-void BufferManager::updatePage(int pageID) {
+void BufferManager::updatePage(int pageID, string& record){
   if (!bpool.isPageLoaded(pageID)) {
     cout << "La página con ID " << pageID
          << " no está cargada en el BufferPool.\n";
@@ -175,13 +175,10 @@ void BufferManager::updatePage(int pageID) {
   int option;
   cin >> option;
   cin.ignore(numeric_limits<std::streamsize>::max(), '\n');
-  string record;
   int index;
 
   switch (option) {
   case 1: // Añadir registro
-    cout << "Ingrese el nuevo registro: ";
-    getline(cin, record);
     if (!page.addRecordInContent(record)) {
       cout << "No hay suficiente espacio en la página para añadir el "
               "registro.\n";
@@ -230,5 +227,20 @@ void BufferManager::showPageDetails(int pageID) {
   } else {
     cout << "La página con ID " << pageID
          << " no está cargada en el BufferPool.\n";
+  }
+}
+
+void BufferManager::addRecordInBuffer(int pageID, string record) {
+  if (!bpool.isPageLoaded(pageID)) {
+    cout << "La página con ID " << pageID
+         << " no está cargada en el BufferPool.\n";
+    return;
+  }
+
+  int frameId = bpool.getFrameId(pageID);
+  Page &page = bpool.getFrame(frameId).getPage();
+
+  if (!page.addRecordInContent(record)) {
+    cout << "No hay suficiente espacio en la página para añadir el registro.\n";
   }
 }
