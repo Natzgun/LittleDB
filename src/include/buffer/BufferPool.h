@@ -48,5 +48,5 @@ public:
   int findRefBit0(int& iteratorTwoTurns);
   void findMinPinCount(int &posFrame);
   int clockPolicy();
-  void clock_Replacement(int pageID, string path, bool mode);
+  void clock_Replacement(int pageID, string path, bool mode, string content, int capacity, string header);
 };

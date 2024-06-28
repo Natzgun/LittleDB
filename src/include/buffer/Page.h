@@ -12,6 +12,7 @@ private:
   string namePath;
   int pageID;
   string contentRFL; // contenido registro de longitud fija
+  string headerRFL; // encabezado registro de longitud fija
 
 public:
   Page();
@@ -40,6 +41,10 @@ public:
   string &getContent();
 
   void setContentRFL(string content);
+
+  void setHeaderRFL(string header);
+
+  string &getHeaderRFL();
 };
 
 #endif  // PAGE_H

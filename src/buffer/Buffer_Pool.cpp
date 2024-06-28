@@ -352,7 +352,7 @@ int BufferPool ::clockPolicy() {
   return posFrame;
 }
 
-void BufferPool ::clock_Replacement(int pageID, string path, bool mode) {
+void BufferPool ::clock_Replacement(int pageID, string path, bool mode, string content, int capacity, string header) {
   int posFrame = clockPolicy();
   if (frames[posFrame].getPinCount() > 0) {
     cout << "==============================================\n";
@@ -368,6 +368,9 @@ void BufferPool ::clock_Replacement(int pageID, string path, bool mode) {
     Page cambiarPage;
     cambiarPage.setPageId(pageID);
     cambiarPage.setName(path);
+    cambiarPage.setSize(capacity);
+    cambiarPage.setContentRFL(content);
+    cambiarPage.setHeaderRFL(header);
     frames[frameFree].setPage(cambiarPage);
     frames[frameFree].setDirtyFlag(mode);
     frames[frameFree].setPinCount(1);

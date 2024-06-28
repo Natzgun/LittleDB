@@ -74,16 +74,36 @@ void BufferManager::loadPageFromDiskClock(int pageID, string path, char _mode) {
   int blockCapacity = 0;
   std::string content;
   std::ifstream file(path);
+  string header;
   if (file.is_open()) {
     std::string line;
     std::string target = "blockCapacity#";
     size_t pos;
+    int lineCount = 0;
 
+    /*
     while (std::getline(file, line)) {
+      // Also add header
+
+     if (lineCount < 5) {
+       header += line + "\n";
+       lineCount++;
+     }
+
       pos = line.find(target);
       if (pos != std::string::npos) {
         blockCapacity = std::stoi(line.substr(pos + target.length()));
         break;
+      }
+    }
+    */
+
+    for (int i = 0; i < 5; i++) {
+      getline(file, line);
+      header += line + "\n";
+      pos = line.find(target);
+      if (pos != std::string::npos) {
+        blockCapacity = std::stoi(line.substr(pos + target.length()));
       }
     }
 
@@ -105,13 +125,14 @@ void BufferManager::loadPageFromDiskClock(int pageID, string path, char _mode) {
     tempPage.setPageId(pageID);
     tempPage.setSize(blockCapacity);
     tempPage.setContentRFL(content);
+    tempPage.setHeaderRFL(header);
 
     bpool.setPageInFrame2(valueF, pageID, mode, tempPage);
     bpool.printTableFrame();
     return;
   }
   cout << "\n****************************************************\n";
-  bpool.clock_Replacement(pageID, path, mode);
+  bpool.clock_Replacement(pageID, path, mode, content, blockCapacity, header);
   cout << "\n****************************************************\n";
   bpool.printTableFrame();
 }
@@ -158,11 +179,18 @@ void BufferManager::savePageToDisk(int pageID) {
   string path = page.getName();
   string content = page.getContent();
 
+  string header = page.getHeaderRFL();
   int sizePageNormal = page.getSize();
+
+  size_t pos = header.find("blockCapacity#");
+  if (pos != string::npos) {
+    size_t endLine = header.find("\n", pos);
+    header.replace(pos, endLine - pos, "blockCapacity#" + to_string(sizePageNormal));
+  }
 
   ofstream file(path);
   if (file.is_open()) {
-    file << sizePageNormal << endl;
+    file << header << endl;
     file << content << endl;
   } else {
     cout << "No se pudo abrir el archivo para guardar la pagina" << endl;

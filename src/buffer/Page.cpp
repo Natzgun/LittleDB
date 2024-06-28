@@ -17,6 +17,7 @@ void Page::setPageId(int pageId) { this->pageID = pageId; }
 string Page::getName() { return namePath; }
 
 void Page::setName(string name) { namePath = name; }
+
 bool Page::addRecordInContent(string &record) {
   if (record.size() > capacity) {
     return false;
@@ -41,3 +42,11 @@ bool Page::deleteRecordInContent(int index) {
 string &Page::getContent() { return contentRFL; }
 
 void Page::setContentRFL(string content) { this->contentRFL = content; }
+
+void Page::setHeaderRFL(string header) {
+  this->headerRFL = header;
+}
+
+string & Page::getHeaderRFL() {
+  return headerRFL;
+}
