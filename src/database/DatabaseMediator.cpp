@@ -1,6 +1,7 @@
 #include "database/DatabaseMediator.h"
 #include "buffer/BufferManager.h"
 
+// Erick Malcoaccha
 void DatabaseMediator::loadBlockMediator(int blockNumber, char mode) {
   vector<int> dataDisk = diskManager.getDataDisk();
   int plattersPerDisk = dataDisk[0];
@@ -32,15 +33,14 @@ void DatabaseMediator::loadBlockMediator(int blockNumber, char mode) {
   string strack = to_string(track);
   string sblock = to_string(block);
   string blockPath = "../../data/root_directory/platter" + splatter + "/track" + strack + "/block" + sblock + ".txt";
-  //string blockPath =  "../../data/root_directory/platter" + std::to_string(platter) + "/track" + std::to_string(track) + "/block" + std::to_string(block) + ".txt";
-  //string blockPath = "../../data/12/2343/asd.txt";
   bfManager.loadPageFromDiskClock(blockNumber, blockPath, mode);
 }
 
 DatabaseMediator::DatabaseMediator() : bfManager(4) {
 }
 
-void DatabaseMediator::addRecord(string &relation, string record, bool end,bool bucle) {
+// Erik Ramos Quispe
+void DatabaseMediator::addRecord(string &relation, string record, bool bucle, bool end) {
   static int pageID = -1;
   static bool first = true;
 
@@ -64,6 +64,7 @@ void DatabaseMediator::addRecord(string &relation, string record, bool end,bool 
   }
 }
 
+// Sebastian Mendoza y Sergio Castillo
 void DatabaseMediator::adminRam() {
   while (true) {
     int instruction;
