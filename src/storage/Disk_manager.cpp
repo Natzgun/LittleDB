@@ -214,3 +214,60 @@ string Disk_manager::redirectSectorWithSpace(const string &blockPath, int record
 vector<int> Disk_manager::getDataDisk() {
   return dataDisk;
 }
+
+void Disk_manager::setBlockToRelation(const string &relation) {
+  int it = disk.getNumOfPlatters();
+  cout << "NUmero de platos" << it << '\n';
+  string blockPath;
+  for(int i = 0; i < it; i++) {
+    blockPath = heapFile.getAndRemoveFirstBlock();
+    heapFile.addBlockToRelation(relation, blockPath);
+  }
+}
+
+void Disk_manager::saveFreeBlocks() {
+  heapFile.saveToFileFreeBlocks();
+}
+
+void Disk_manager::saveDiskAttributesToFile(string filename) {
+  string ruta = "../../data/metadataDisk/" + filename;
+  vector<int> datos = disk.getDatosDisk();
+  std::ofstream file(ruta, std::ios::out | std::ios::trunc);
+  if (file.is_open()) {
+    for(int i = 0; i < datos.size(); i++) {
+      file << datos[i] << '\n';
+    }
+    file.close();
+  } 
+  else {
+    std::cerr << "No se pudo abrir el archivo para escribir.\n";
+  }
+}
+
+void Disk_manager::loadDiskAttributesFromFile(string filename) {
+    string ruta = "../../data/metadataDisk/" + filename;
+    std::ifstream file(ruta);
+    if (file.is_open()) {
+        int plates, tracks, sectors, bytes, bytesPerBlock;
+        file >> plates;
+        file >> tracks;
+        file >> sectors;
+        file >> bytes;
+        file >> bytesPerBlock;
+
+        int sectorPerBlock = bytesPerBlock / bytes;
+        int blockPerTrack = sectors / sectorPerBlock;
+        dataDisk.clear();
+        dataDisk.push_back(plates * 2);
+        dataDisk.push_back(tracks);
+        dataDisk.push_back(blockPerTrack);
+
+        disk = Disk(plates, tracks, sectors, bytes, bytesPerBlock);
+        disk.capacityDisk();
+        findFreeBlock();
+        file.close();
+    } else {
+        std::cerr << "No se pudo abrir el archivo para leer. Se iniciará con los valores predeterminados.\n";
+    }
+}
+

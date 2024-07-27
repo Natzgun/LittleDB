@@ -41,6 +41,7 @@ DatabaseMediator::DatabaseMediator() : bfManager(4) {
 
 // Erik Ramos Quispe
 void DatabaseMediator::addRecord(string &relation, string record, bool bucle, bool end) {
+  diskManager.setBlockToRelation(relation);
   static int pageID = -1;
   static bool first = true;
 
@@ -144,4 +145,13 @@ void DatabaseMediator::adminRam() {
 
 void DatabaseMediator::selectDiskStructureMediator(bool defaultDisk) {
   diskManager.selectDiskStructure(defaultDisk);
+}
+
+void DatabaseMediator::saveDataInRAM() {
+  diskManager.saveFreeBlocks();
+  diskManager.saveDiskAttributesToFile();
+}
+
+void DatabaseMediator::loadDataInFiles() {
+  diskManager.loadDiskAttributesFromFile();
 }

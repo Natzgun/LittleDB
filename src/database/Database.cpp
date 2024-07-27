@@ -352,3 +352,11 @@ void Database::selectDisk(bool defaultDisk) {
 void Database::viewRam() {
   dbMediator.adminRam();
 }
+
+void Database::saveDataInRAM() {
+  dbMediator.saveDataInRAM();
+}
+
+void Database::loadDataInFiles() {
+  dbMediator.loadDataInFiles();
+}

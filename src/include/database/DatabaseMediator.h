@@ -18,8 +18,9 @@ class DatabaseMediator {
   DatabaseMediator();
     void addRecord(string& relation, string record, bool bucle = false, bool end = false);
     void adminRam();
-
     void selectDiskStructureMediator(bool defaultDisk);
+    void saveDataInRAM();
+    void loadDataInFiles();
 };
 
 #endif

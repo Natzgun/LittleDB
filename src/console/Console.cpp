@@ -36,10 +36,14 @@ void Console::run() {
     if (command == "Disk") {
       selectDisk();
     }
+    else if(command == "Load"){
+      db.loadDataInFiles();
+    }
     execCommand(command);
 
     if (command == "exit") {
       cout << "Gracias por usar el Sistema." << endl;
+      db.saveDataInRAM();
       break;
     }
   }

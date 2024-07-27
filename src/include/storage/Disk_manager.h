@@ -10,7 +10,6 @@ private:
   HeapFile heapFile;
   TreeNode& rootNode;
   vector<int> dataDisk;
-
 public:
   Disk_manager();
   void selectDiskStructure(bool);
@@ -32,5 +31,13 @@ public:
   string redirectSectorWithSpace(const string &blockPath, int recordSize);
 
   vector<int> getDataDisk();
+
+  void setBlockToRelation(const string &relation);
+
+  void saveFreeBlocks();
+
+  void saveDiskAttributesToFile(string filename = "disk_attributes.txt");
+
+  void loadDiskAttributesFromFile(string filename = "disk_attributes.txt");
 };
 #endif //DISK_MANAGER_H

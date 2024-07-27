@@ -38,5 +38,9 @@ public:
   void selectDisk(bool defaultDisk);
 
   void viewRam();
+
+  void saveDataInRAM();
+
+  void loadDataInFiles();
 };
 #endif //DATABASE_H

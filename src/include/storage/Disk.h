@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include "storage/TreeNode.h"
+using namespace std;
 
 using std::string;
 
@@ -20,7 +21,7 @@ private:
   int sectorPerBlock;
   int bytesPerBlock;
   int blockPerTrack;
-
+  vector<int> datos;
   TreeNode root;
 
   void createFile(const string & path_file);
@@ -36,5 +37,7 @@ public:
   void capacityDisk();
   void generateDiskStructure();
   int getNumOfSectors() const;
+  int getNumOfPlatters() const;
+  vector<int> getDatosDisk();
 };
 #endif //DISK_H
