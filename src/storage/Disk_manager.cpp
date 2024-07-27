@@ -69,7 +69,7 @@ void Disk_manager::insertRecord(string &relation, string &record, int recordSize
   ifstream bUsed(blocksUsedPath);
 
   string blockPath;
-  if (bUsed.is_open()) {
+  if (bUsed.is_open()){
     getline(bUsed, blockPath);
     bUsed.close();
   } else {
@@ -245,6 +245,7 @@ void Disk_manager::saveDiskAttributesToFile(string filename) {
 }
 
 void Disk_manager::loadDiskAttributesFromFile(string filename) {
+    heapFile.loadFromFileFreeBlocks();
     string ruta = "../../data/metadataDisk/" + filename;
     std::ifstream file(ruta);
     if (file.is_open()) {

@@ -41,7 +41,12 @@ DatabaseMediator::DatabaseMediator() : bfManager(4) {
 
 // Erik Ramos Quispe
 void DatabaseMediator::addRecord(string &relation, string record, bool bucle, bool end) {
-  diskManager.setBlockToRelation(relation);
+  static map<string, bool> relationMap;
+  auto it = relationMap.find(relation);
+  if (it == relationMap.end()) {
+    relationMap[relation] = true; 
+    diskManager.setBlockToRelation(relation);
+  }
   static int pageID = -1;
   static bool first = true;
 
