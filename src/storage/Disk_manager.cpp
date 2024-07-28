@@ -271,22 +271,32 @@ void Disk_manager::loadDiskAttributesFromFile(string filename) {
     }
 }
 
+vector<string> Disk_manager::splitCapacityAndPath(string blockPath) {
+  vector<string> result;
+  size_t pos = blockPath.find("#");
+  if (pos != string::npos) {
+    result.push_back(blockPath.substr(0, pos));
+    result.push_back(blockPath.substr(pos + 1));
+  }
+  return result;
+}
+
 void Disk_manager::fillMapOfRelation(const std::string &relation) {
     std::string blocksUsedPath = "../../data/heapfiles/" + relation + ".txt";
     std::ifstream bUsed(blocksUsedPath);
-    
+     
     if (!bUsed.is_open()) {
         setBlockToRelation(relation); 
         bUsed.open(blocksUsedPath);
     }
-
+     
     string line;
     bool relationExists = (mapOfRelationHF.find(relation) != mapOfRelationHF.end());
 
     while (std::getline(bUsed, line)) {
-        vector<string> dataOfBlockHF;
-        string key = dataOfBlockHF[0];
-        int slot = std::stoi(dataOfBlockHF[1]);
+        vector<string> dataOfBlockHF = splitCapacityAndPath(line);
+        string key = dataOfBlockHF[1];
+        int slot = std::stoi(dataOfBlockHF[0]);
         if (!relationExists || 
         mapOfRelationHF[relation].find(key) == mapOfRelationHF[relation].end()) {
 
@@ -298,6 +308,7 @@ void Disk_manager::fillMapOfRelation(const std::string &relation) {
     bUsed.close();
 }
 
+
 string Disk_manager::getBlockToTree(const string relation) {
     auto it = mapOfRelationHF.find(relation);
     if (it == mapOfRelationHF.end()) {
@@ -306,7 +317,8 @@ string Disk_manager::getBlockToTree(const string relation) {
     int maxCapacity; 
     {
       vector<int> dataDisk = getDataDisk();
-      maxCapacity = dataDisk[4];
+      int bitPerBlock = dataDisk[4];
+      maxCapacity = bitPerBlock;
     }
     const auto& innerMap = it->second;
     for (const auto& innerPair : innerMap) {
@@ -317,14 +329,10 @@ string Disk_manager::getBlockToTree(const string relation) {
         }
     }
     setBlockToRelation(relation);
-    string path = getBlockToTree(relation); 
-    return path;
+    return getBlockToTree(relation); 
 }
 
 void Disk_manager::updateMapOfRelationHF(const string &relation, const string &blockPath, int updateSlot) {
     mapOfRelationHF[relation][blockPath] = updateSlot;
 }
-
-
-
 

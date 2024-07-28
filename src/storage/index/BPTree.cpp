@@ -265,3 +265,264 @@ void BPTree::exportToDot(const string &filename) {
     file << "}\n";
     file.close();
 }
+
+// Delete Operation
+void BPTree::remove(int x) {
+    if (root == nullptr) {
+        cout << "Tree is empty\n";
+        return;
+    } else {
+        Node *cursor = root;
+        Node *parent = nullptr;
+        int leftSibling, rightSibling;
+
+        while (!cursor->IS_LEAF) {
+            parent = cursor;
+            int i;
+            for (i = 0; i < cursor->size; i++) {
+                leftSibling = i - 1;
+                rightSibling = i + 1;
+                if (x < cursor->key[i]) {
+                    cursor = cursor->ptr[i];
+                    break;
+                }
+                if (i == cursor->size - 1) {
+                    leftSibling = i;
+                    rightSibling = i + 2;
+                    cursor = cursor->ptr[i + 1];
+                    break;
+                }
+            }
+        }
+
+        bool found = false;
+        int pos;
+        for (pos = 0; pos < cursor->size; pos++) {
+            if (cursor->key[pos] == x) {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            cout << "Key " << x << " is not found\n";
+            return;
+        }
+
+        for (int i = pos; i < cursor->size - 1; i++) {
+            cursor->key[i] = cursor->key[i + 1];
+            cursor->metadata[i] = cursor->metadata[i + 1]; // Mueve las metadata también
+        }
+        cursor->size--;
+
+        if (cursor == root) {
+            if (cursor->size == 0) {
+                delete[] cursor->key;
+                delete[] cursor->ptr;
+                delete[] cursor->metadata; // Liberamos la memoria de metadata
+                delete cursor;
+                root = nullptr;
+            }
+            return;
+        }
+
+        cursor->ptr[cursor->size] = cursor->ptr[cursor->size + 1];
+        cursor->ptr[cursor->size + 1] = nullptr;
+
+        if (cursor->size >= (MAX + 1) / 2) {
+            return;
+        }
+
+        if (rightSibling <= parent->size) {
+            Node *rightNode = parent->ptr[rightSibling];
+            if (rightNode->size >= (MAX + 1) / 2 + 1) {
+                cursor->key[cursor->size] = rightNode->key[0];
+                cursor->metadata[cursor->size] = rightNode->metadata[0]; // Asigna la metadata también
+                cursor->ptr[cursor->size + 1] = rightNode->ptr[0];
+                cursor->size++;
+                for (int i = 0; i < rightNode->size - 1; i++) {
+                    rightNode->key[i] = rightNode->key[i + 1];
+                    rightNode->metadata[i] = rightNode->metadata[i + 1]; // Mueve las metadata también
+                }
+                rightNode->size--;
+                parent->key[rightSibling - 1] = rightNode->key[0];
+                return;
+            }
+        }
+
+        if (leftSibling >= 0) {
+            Node *leftNode = parent->ptr[leftSibling];
+            if (leftNode->size >= (MAX + 1) / 2 + 1) {
+                for (int i = cursor->size; i > 0; i--) {
+                    cursor->key[i] = cursor->key[i - 1];
+                    cursor->metadata[i] = cursor->metadata[i - 1]; // Mueve las metadata también
+                }
+                cursor->key[0] = leftNode->key[leftNode->size - 1];
+                cursor->metadata[0] = leftNode->metadata[leftNode->size - 1]; // Asigna la metadata también
+                cursor->ptr[0] = leftNode->ptr[leftNode->size];
+                leftNode->size--;
+                cursor->size++;
+                parent->key[leftSibling] = cursor->key[0];
+                return;
+            }
+        }
+
+        if (rightSibling <= parent->size) {
+            Node *rightNode = parent->ptr[rightSibling];
+            for (int i = cursor->size, j = 0; j < rightNode->size; i++, j++) {
+                cursor->key[i] = rightNode->key[j];
+                cursor->metadata[i] = rightNode->metadata[j]; // Mueve las metadata también
+            }
+            cursor->ptr[cursor->size] = nullptr;
+            cursor->size += rightNode->size;
+            cursor->ptr[cursor->size] = rightNode->ptr[rightNode->size];
+            removeInternal(parent->key[rightSibling - 1], parent, rightNode);
+            delete[] rightNode->key;
+            delete[] rightNode->ptr;
+            delete[] rightNode->metadata; // Liberamos la memoria de metadata
+            delete rightNode;
+        } else if (leftSibling >= 0) {
+            Node *leftNode = parent->ptr[leftSibling];
+            for (int i = leftNode->size, j = 0; j < cursor->size; i++, j++) {
+                leftNode->key[i] = cursor->key[j];
+                leftNode->metadata[i] = cursor->metadata[j]; // Mueve las metadata también
+            }
+            leftNode->ptr[leftNode->size] = nullptr;
+            leftNode->size += cursor->size;
+            leftNode->ptr[leftNode->size] = cursor->ptr[cursor->size];
+            removeInternal(parent->key[leftSibling], parent, cursor);
+            delete[] cursor->key;
+            delete[] cursor->ptr;
+            delete[] cursor->metadata; // Liberamos la memoria de metadata
+            delete cursor;
+        }
+    }
+}
+
+void BPTree::removeInternal(int x, Node *cursor, Node *child) {
+    if (cursor == root) {
+        if (cursor->size == 1) {
+            if (cursor->ptr[1] == child) {
+                delete[] child->key;
+                delete[] child->ptr;
+                delete[] child->metadata; // Liberamos la memoria de metadata
+                delete child;
+                root = cursor->ptr[0];
+                delete[] cursor->key;
+                delete[] cursor->ptr;
+                delete[] cursor->metadata; // Liberamos la memoria de metadata
+                delete cursor;
+                return;
+            } else if (cursor->ptr[0] == child) {
+                delete[] child->key;
+                delete[] child->ptr;
+                delete[] child->metadata; // Liberamos la memoria de metadata
+                delete child;
+                root = cursor->ptr[1];
+                delete[] cursor->key;
+                delete[] cursor->ptr;
+                delete[] cursor->metadata; // Liberamos la memoria de metadata
+                delete cursor;
+                return;
+            }
+        }
+    }
+
+    int pos;
+    for (pos = 0; pos < cursor->size; pos++) {
+        if (cursor->key[pos] == x) {
+            break;
+        }
+    }
+
+    for (int i = pos; i < cursor->size - 1; i++) {
+        cursor->key[i] = cursor->key[i + 1];
+    }
+    for (int i = pos + 1; i < cursor->size + 1; i++) {
+        cursor->ptr[i] = cursor->ptr[i + 1];
+    }
+    cursor->size--;
+
+    if (cursor->size >= (MAX + 1) / 2 - 1) {
+        return;
+    }
+
+    if (cursor == root) return;
+
+    Node *parent = findParent(root, cursor);
+    int leftSibling, rightSibling;
+
+    for (pos = 0; pos < parent->size + 1; pos++) {
+        if (parent->ptr[pos] == cursor) {
+            leftSibling = pos - 1;
+            rightSibling = pos + 1;
+            break;
+        }
+    }
+
+    if (rightSibling <= parent->size) {
+        Node *rightNode = parent->ptr[rightSibling];
+        if (rightNode->size >= (MAX + 1) / 2) {
+            cursor->key[cursor->size] = parent->key[rightSibling - 1];
+            cursor->ptr[cursor->size + 1] = rightNode->ptr[0];
+            parent->key[rightSibling - 1] = rightNode->key[0];
+            for (int i = 0; i < rightNode->size - 1; i++) {
+                rightNode->key[i] = rightNode->key[i + 1];
+            }
+            for (int i = 0; i < rightNode->size; i++) {
+                rightNode->ptr[i] = rightNode->ptr[i + 1];
+            }
+            cursor->size++;
+            rightNode->size--;
+            return;
+        }
+    }
+
+    if (leftSibling >= 0) {
+        Node *leftNode = parent->ptr[leftSibling];
+        if (leftNode->size >= (MAX + 1) / 2) {
+            for (int i = cursor->size; i > 0; i--) {
+                cursor->key[i] = cursor->key[i - 1];
+            }
+            cursor->key[0] = parent->key[leftSibling];
+            for (int i = cursor->size + 1; i > 0; i--) {
+                cursor->ptr[i] = cursor->ptr[i - 1];
+            }
+            cursor->ptr[0] = leftNode->ptr[leftNode->size];
+            parent->key[leftSibling] = leftNode->key[leftNode->size - 1];
+            cursor->size++;
+            leftNode->size--;
+            return;
+        }
+    }
+
+    if (rightSibling <= parent->size) {
+        Node *rightNode = parent->ptr[rightSibling];
+        for (int i = cursor->size, j = 0; j < rightNode->size; i++, j++) {
+            cursor->key[i] = rightNode->key[j];
+        }
+        for (int i = cursor->size + 1, j = 0; j < rightNode->size + 1; i++, j++) {
+            cursor->ptr[i] = rightNode->ptr[j];
+        }
+        cursor->size += rightNode->size;
+        removeInternal(parent->key[rightSibling - 1], parent, rightNode);
+        delete[] rightNode->key;
+        delete[] rightNode->ptr;
+        delete[] rightNode->metadata; // Liberamos la memoria de metadata
+        delete rightNode;
+    } else if (leftSibling >= 0) {
+        Node *leftNode = parent->ptr[leftSibling];
+        for (int i = leftNode->size, j = 0; j < cursor->size; i++, j++) {
+            leftNode->key[i] = cursor->key[j];
+        }
+        for (int i = leftNode->size + 1, j = 0; j < cursor->size + 1; i++, j++) {
+            leftNode->ptr[i] = cursor->ptr[j];
+        }
+        leftNode->size += cursor->size;
+        removeInternal(parent->key[leftSibling], parent, cursor);
+        delete[] cursor->key;
+        delete[] cursor->ptr;
+        delete[] cursor->metadata; // Liberamos la memoria de metadata
+        delete cursor;
+    }
+}
