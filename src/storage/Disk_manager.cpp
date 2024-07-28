@@ -99,7 +99,8 @@ void Disk_manager::findFreeBlock() {
 
 void Disk_manager::searchFreeBlockInTree(const TreeNode &node) {
   if (isBlockFree(node.directory)) {
-    heapFile.addFreeBlock(node.directory.string());
+    string pathWithCapacity = to_string(disk.getBytesPerBlock()) + "#" + node.directory.string();
+    heapFile.addFreeBlock(pathWithCapacity);
   }
 
   for (const auto &child : node.children) {

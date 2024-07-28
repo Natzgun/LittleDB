@@ -187,3 +187,7 @@ vector<int> Disk::getDatosDisk() {
   datos.push_back(bytesPerBlock);
   return datos;
 }
+
+int Disk::getBytesPerBlock() const {
+  return bytesPerBlock;
+}

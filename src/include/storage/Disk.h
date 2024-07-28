@@ -39,5 +39,7 @@ public:
   int getNumOfSectors() const;
   int getNumOfPlatters() const;
   vector<int> getDatosDisk();
+
+  int getBytesPerBlock() const;
 };
 #endif //DISK_H
