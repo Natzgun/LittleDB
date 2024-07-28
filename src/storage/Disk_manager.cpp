@@ -217,7 +217,6 @@ vector<int> Disk_manager::getDataDisk() {
 
 void Disk_manager::setBlockToRelation(const string &relation) {
   int it = disk.getNumOfPlatters();
-  cout << "NUmero de platos" << it << '\n';
   string blockPath;
   for(int i = 0; i < it; i++) {
     blockPath = heapFile.getAndRemoveFirstBlock();
@@ -271,4 +270,61 @@ void Disk_manager::loadDiskAttributesFromFile(string filename) {
         std::cerr << "No se pudo abrir el archivo para leer. Se iniciará con los valores predeterminados.\n";
     }
 }
+
+void Disk_manager::fillMapOfRelation(const std::string &relation) {
+    std::string blocksUsedPath = "../../data/heapfiles/" + relation + ".txt";
+    std::ifstream bUsed(blocksUsedPath);
+    
+    if (!bUsed.is_open()) {
+        setBlockToRelation(relation); 
+        bUsed.open(blocksUsedPath);
+    }
+
+    string line;
+    bool relationExists = (mapOfRelationHF.find(relation) != mapOfRelationHF.end());
+
+    while (std::getline(bUsed, line)) {
+        vector<string> dataOfBlockHF;
+        string key = dataOfBlockHF[0];
+        int slot = std::stoi(dataOfBlockHF[1]);
+        if (!relationExists || 
+        mapOfRelationHF[relation].find(key) == mapOfRelationHF[relation].end()) {
+
+          mapOfRelationHF[relation][key] = slot;
+
+        }
+    }
+
+    bUsed.close();
+}
+
+string Disk_manager::getBlockToTree(const string relation) {
+    auto it = mapOfRelationHF.find(relation);
+    if (it == mapOfRelationHF.end()) {
+      setBlockToRelation(relation);
+    }
+    int maxCapacity; 
+    {
+      vector<int> dataDisk = getDataDisk();
+      maxCapacity = dataDisk[4];
+    }
+    const auto& innerMap = it->second;
+    for (const auto& innerPair : innerMap) {
+        const string path = innerPair.first;
+        int currentSlot = innerPair.second;
+        if (currentSlot == maxCapacity) {
+          return path;
+        }
+    }
+    setBlockToRelation(relation);
+    string path = getBlockToTree(relation); 
+    return path;
+}
+
+void Disk_manager::updateMapOfRelationHF(const string &relation, const string &blockPath, int updateSlot) {
+    mapOfRelationHF[relation][blockPath] = updateSlot;
+}
+
+
+
 
