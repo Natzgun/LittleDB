@@ -17,6 +17,9 @@ public:
     Node *getRoot();
     void generateDot(Node *cursor, std::ofstream &file);
     void exportToDot(const std::string &filename);
+
+    void remove(int x);
+    void removeInternal(int x, Node *cursor, Node *child);
 };
 
 
