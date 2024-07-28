@@ -36,6 +36,23 @@ void DatabaseMediator::loadBlockMediator(int blockNumber, char mode) {
   bfManager.loadPageFromDiskClock(blockNumber, blockPath, mode);
 }
 
+void DatabaseMediator::convertPathToPage(const string& blockPath, char mode) {
+    size_t platterPos = blockPath.find("platter") + 7; 
+    size_t trackPos = blockPath.find("track") + 5;     
+    size_t blockPos = blockPath.find("block") + 5;     
+
+    int platter = stoi(blockPath.substr(platterPos, blockPath.find("/", platterPos) - platterPos));
+    int block = stoi(blockPath.substr(blockPos, blockPath.find(".txt", blockPos) - blockPos));
+    vector<int> dataDisk = diskManager.getDataDisk();
+    int plattersPerDisk = dataDisk[0];
+    int tracksPerPlatter = dataDisk[1];
+    int blocksPerTrack = dataDisk[2];
+
+    int blockNumber = (platter - 1) * tracksPerPlatter * blocksPerTrack + block;
+    bfManager.loadPageFromDiskClock(blockNumber, blockPath, mode);
+}
+
+
 DatabaseMediator::DatabaseMediator() : bfManager(4) {
 }
 

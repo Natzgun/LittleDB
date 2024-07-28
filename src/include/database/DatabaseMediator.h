@@ -11,7 +11,7 @@ using namespace std;
 class DatabaseMediator {
   private:
     void loadBlockMediator(int blockID, char mode);
-
+    void convertPathToPage(const string& path, char mod);
     BufferManager bfManager;
     Disk_manager diskManager;
   public:
