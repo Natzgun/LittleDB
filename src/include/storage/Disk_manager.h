@@ -1,6 +1,8 @@
 #ifndef DISK_MANAGER_H
 #define DISK_MANAGER_H
 
+#include <map>
+
 #include "storage/HeapFile.h"
 #include "storage/Disk.h"
 #include "storage/TreeNode.h"
@@ -39,5 +41,7 @@ public:
   void saveDiskAttributesToFile(string filename = "disk_attributes.txt");
 
   void loadDiskAttributesFromFile(string filename = "disk_attributes.txt");
+
+  vector<string> splitCapacityAndPath(string blockPath);
 };
 #endif //DISK_MANAGER_H

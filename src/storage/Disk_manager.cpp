@@ -272,3 +272,12 @@ void Disk_manager::loadDiskAttributesFromFile(string filename) {
     }
 }
 
+vector<string> Disk_manager::splitCapacityAndPath(string blockPath) {
+  vector<string> result;
+  size_t pos = blockPath.find("#");
+  if (pos != string::npos) {
+    result.push_back(blockPath.substr(0, pos));
+    result.push_back(blockPath.substr(pos + 1));
+  }
+  return result;
+}
