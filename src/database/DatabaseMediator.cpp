@@ -36,6 +36,16 @@ void DatabaseMediator::loadBlockMediator(int blockNumber, char mode) {
   bfManager.loadPageFromDiskClock(blockNumber, blockPath, mode);
 }
 
+BPTree & DatabaseMediator::getOrCreateBPTree(string relation) {
+  auto it = bPlusTrees.find(relation);
+  if (it == bPlusTrees.end()) {
+    BPTree newTree;
+    bPlusTrees[relation] = newTree;
+    return bPlusTrees[relation];
+  }
+  return it->second;
+}
+
 DatabaseMediator::DatabaseMediator() : bfManager(4) {
 }
 
