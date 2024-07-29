@@ -34,6 +34,8 @@ public:
   // Añade el contenido de un registro a la página si hay suficiente espacio
   bool addRecordInContent(string &record);
 
+  pair<bool,int> addRecordInContent1(string &record);
+
   // Elimina un registro de la página en el índice especificado
   bool deleteRecordInContent(int index);
 

@@ -39,6 +39,9 @@ public:
 
   void addRecordInBuffer(int pageID, string record);
 
+  pair<bool,int> addRecordInBuffer1(int pageID, string record);
+
+  string getPathName(int pageID);
 };
 
 #endif  // BUFFERMANAGER_H

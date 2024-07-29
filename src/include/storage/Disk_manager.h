@@ -42,6 +42,8 @@ public:
 
   void saveDiskAttributesToFile(string filename = "disk_attributes.txt");
 
+  void saveMapOfRelationHF();
+
   void loadDiskAttributesFromFile(string filename = "disk_attributes.txt");
 
   vector<string> splitCapacityAndPath(string blockPath);

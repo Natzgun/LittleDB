@@ -383,3 +383,12 @@ void BufferPool ::clock_Replacement(int pageID, string path, bool mode, string c
     cout << "==============================================\n";
   }
 }
+
+string BufferPool ::getPathPage(int pageID) {
+  for (int i = 0; i < frames.size(); i++) {
+    if (frames[i].getPage().getPageId() == pageID) {
+      return frames[i].getPage().getName();
+    }
+  }
+  return "No se encontro la pagina";
+}

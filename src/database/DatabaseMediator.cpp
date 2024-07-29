@@ -36,20 +36,21 @@ void DatabaseMediator::loadBlockMediator(int blockNumber, char mode) {
   bfManager.loadPageFromDiskClock(blockNumber, blockPath, mode);
 }
 
-void DatabaseMediator::convertPathToPage(const string& blockPath, char mode) {
+int DatabaseMediator::convertPathToPage(const string& blockPath, char mode) {
     size_t platterPos = blockPath.find("platter") + 7; 
     size_t trackPos = blockPath.find("track") + 5;     
     size_t blockPos = blockPath.find("block") + 5;     
 
     int platter = stoi(blockPath.substr(platterPos, blockPath.find("/", platterPos) - platterPos));
     int block = stoi(blockPath.substr(blockPos, blockPath.find(".txt", blockPos) - blockPos));
-    vector<int> dataDisk = diskManager.getDataDisk();
-    int plattersPerDisk = dataDisk[0];
-    int tracksPerPlatter = dataDisk[1];
-    int blocksPerTrack = dataDisk[2];
+    vector<int> dataDisk1 = diskManager.getDataDisk();
+    int plattersPerDisk = dataDisk1[0];
+    int tracksPerPlatter = dataDisk1[1];
+    int blocksPerTrack = dataDisk1[2];
 
     int blockNumber = (platter - 1) * tracksPerPlatter * blocksPerTrack + block;
     bfManager.loadPageFromDiskClock(blockNumber, blockPath, mode);
+    return blockNumber;
 }
 
 
@@ -62,29 +63,40 @@ void DatabaseMediator::addRecord(string &relation, string record, bool bucle, bo
   auto it = relationMap.find(relation);
   if (it == relationMap.end()) {
     relationMap[relation] = true; 
-    diskManager.setBlockToRelation(relation);
+    diskManager.fillMapOfRelation(relation);
   }
-  static int pageID = -1;
-  static bool first = true;
 
+  pair<bool,int> result;
+  static int pageID;
+  static bool first = true;
   if(end){
     first = true;
-    pageID = -1;
     return;
   }
 
   if(!bucle){
-    cout << "ID de la pagina: ";
-    cin >> pageID;
-    bfManager.addRecordInBuffer(pageID, record);
+    string newPath = diskManager.getBlockToTree(relation);
+    pageID = convertPathToPage(newPath, 'W');
+    result = bfManager.addRecordInBuffer1(pageID, record);
+    if(!result.first){
+      string newPath = diskManager.getBlockToTree(relation);
+      pageID = convertPathToPage(newPath, 'W');
+      bfManager.addRecordInBuffer(pageID, record);
+    }
   }else{
     if(first){
-      cout << "ID de la pagina: ";
-      cin >> pageID;
+      string newPath = diskManager.getBlockToTree(relation);
+      pageID = convertPathToPage(newPath, 'W'); 
       first = false;
     }
-    bfManager.addRecordInBuffer(pageID, record);
+    result = bfManager.addRecordInBuffer1(pageID, record);
+    if(!result.first){
+      string newPath = diskManager.getBlockToTree(relation);
+      pageID = convertPathToPage(newPath, 'W');
+      bfManager.addRecordInBuffer(pageID, record);
+    }
   }
+  diskManager.updateMapOfRelationHF(relation,bfManager.getPathName(pageID), result.second);
 }
 
 // Sebastian Mendoza y Sergio Castillo
@@ -172,6 +184,7 @@ void DatabaseMediator::selectDiskStructureMediator(bool defaultDisk) {
 void DatabaseMediator::saveDataInRAM() {
   diskManager.saveFreeBlocks();
   diskManager.saveDiskAttributesToFile();
+  diskManager.saveMapOfRelationHF();
 }
 
 void DatabaseMediator::loadDataInFiles() {

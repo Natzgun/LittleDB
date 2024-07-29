@@ -317,8 +317,8 @@ string Disk_manager::getBlockToTree(const string relation) {
     }
     int maxCapacity; 
     {
-      vector<int> dataDisk = getDataDisk();
-      int bitPerBlock = dataDisk[4];
+      vector<int> dataDiskBit = disk.getDatosDisk();
+      int bitPerBlock = dataDiskBit[4];
       maxCapacity = bitPerBlock;
     }
     const auto& innerMap = it->second;
@@ -335,5 +335,20 @@ string Disk_manager::getBlockToTree(const string relation) {
 
 void Disk_manager::updateMapOfRelationHF(const string &relation, const string &blockPath, int updateSlot) {
     mapOfRelationHF[relation][blockPath] = updateSlot;
+}
+
+void Disk_manager::saveMapOfRelationHF() {
+    for (const auto& relation : mapOfRelationHF) {
+        const string& relationName = relation.first;
+        const auto& innerMap = relation.second;
+        string blocksUsedPath = "../../data/heapfiles/" + relationName + ".txt";
+        std::ofstream bUsed(blocksUsedPath, std::ios::out | std::ios::trunc);
+        for (const auto& innerPair : innerMap) {
+            const string& path = innerPair.first;
+            int slot = innerPair.second;
+            bUsed << slot << "#" << path << '\n';
+        }
+        bUsed.close();
+    } 
 }
 

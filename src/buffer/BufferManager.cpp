@@ -305,3 +305,22 @@ void BufferManager::addRecordInBuffer(int pageID, string record) {
     cout << "No hay suficiente espacio en la página para añadir el registro.\n";
   }
 }
+
+pair<bool,int> BufferManager::addRecordInBuffer1(int pageID, string record) {
+  int frameId = bpool.getFrameId(pageID);
+  Page &page = bpool.getFrame(frameId).getPage();
+  pair<bool,int> answer = page.addRecordInContent1(record);
+  return answer;
+}
+
+string BufferManager::getPathName(int pageID) {
+  if (!bpool.isPageLoaded(pageID)) {
+    cout << "La página con ID " << pageID
+         << " no está cargada en el BufferPool.\n";
+    return "";
+  }
+
+  int frameId = bpool.getFrameId(pageID);
+  Page &page = bpool.getFrame(frameId).getPage();
+  return page.getName();
+}
