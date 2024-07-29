@@ -28,7 +28,6 @@ void DatabaseMediator::loadBlockMediator(int blockNumber, char mode) {
     block = tracksPerPlatter * blocksPerTrack;
   }
 
-  // string blockPath =  "../../data/root_directory/platter" + to_string(platter) + "/track" + to_string(track) + "/block" + to_string(block) + ".txt";
   string splatter = to_string(platter);
   string strack = to_string(track);
   string sblock = to_string(block);
@@ -36,6 +35,7 @@ void DatabaseMediator::loadBlockMediator(int blockNumber, char mode) {
   bfManager.loadPageFromDiskClock(blockNumber, blockPath, mode);
 }
 
+// Erick Malcoaccha
 BPTree & DatabaseMediator::getOrCreateBPTree(string relation) {
   auto it = bPlusTrees.find(relation);
   if (it == bPlusTrees.end()) {
@@ -44,6 +44,38 @@ BPTree & DatabaseMediator::getOrCreateBPTree(string relation) {
     return bPlusTrees[relation];
   }
   return it->second;
+}
+
+// Erick Malcoaccha
+string DatabaseMediator::getBlockFromBPtreeForInsert(string key, string relation) {
+  BPTree &bptree = getOrCreateBPTree(relation);
+  pair<string,string> block = bptree.search(stoi(key));
+
+  /*
+   * Retorna el bloque segido de un # y al final su desplazamiento
+   * Ejemplo: 30#2
+   */
+  return block.second;
+}
+
+// Erick Malcoaccha
+vector<string> DatabaseMediator::getBlocksForRead(string key, string relation) {
+
+  /*
+   * Retorna la lista de bloques de una relacion en base a una condicion
+   */
+  return {};
+}
+
+// Erick Malcoaccha
+void DatabaseMediator::fillBPtree(string relation) {
+  string pathRelation = "../../data/heapfiles/" + relation + ".txt";
+  ifstream file(pathRelation);
+
+  if (!file.is_open()) {
+    cout << "DBMediator: No se pudo abrir el archivo " << pathRelation << endl;
+  }
+
 }
 
 DatabaseMediator::DatabaseMediator() : bfManager(4) {

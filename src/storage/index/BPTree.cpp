@@ -15,9 +15,9 @@ BPTree::BPTree() {
 }
 
 // Search operation
-void BPTree::search(int x) {
+pair<string,string> BPTree::search(int x) {
     if (root == nullptr) {
-        cout << "Tree is empty\n";
+        return {"Null_Index", "Tree is empty"};
     } else {
         Node *cursor = root;
         while (!cursor->IS_LEAF) {
@@ -35,12 +35,13 @@ void BPTree::search(int x) {
         }
         for (int i = 0; i < cursor->size; i++) {
             if (cursor->key[i] == x) {
-                cout << "Key: " << x << " is present\n";
-                cout << "Found at block: " << cursor->metadata[i]->block << " offset: " << cursor->metadata[i]->offset << std::endl;
-                return;
+                pair<string, string> block;
+                block.first = to_string(x);
+                block.second = cursor->metadata[i]->block + "#" + to_string(cursor->metadata[i]->offset);
+                return block;
             }
         }
-        cout << "Not found\n";
+        return {"Null_Index", "Not found"};
     }
 }
 

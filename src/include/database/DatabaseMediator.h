@@ -18,6 +18,10 @@ class DatabaseMediator {
   map<string,BPTree> bPlusTrees;
 
   BPTree& getOrCreateBPTree(string relation);
+  string getBlockFromBPtreeForInsert(string key, string relation);
+  vector<string> getBlocksForRead(string key, string relation);
+  void fillBPtree(string relation);
+  void loadBPtree(string relation);
 
   public:
   DatabaseMediator();

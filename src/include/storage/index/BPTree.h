@@ -11,7 +11,7 @@ class BPTree {
 
 public:
     BPTree();
-    void search(int);
+    std::pair<std::string, std::string> search(int);
     void insert(int, const std::string &, int);
     void display(Node *);
     Node *getRoot();
