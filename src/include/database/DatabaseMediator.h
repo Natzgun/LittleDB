@@ -12,7 +12,7 @@ using namespace std;
 class DatabaseMediator {
   private:
   void loadBlockMediator(int blockID, char mode);
-
+    int convertPathToPage(const string& path, char mod);
   BufferManager bfManager;
   Disk_manager diskManager;
   map<string,BPTree> bPlusTrees;

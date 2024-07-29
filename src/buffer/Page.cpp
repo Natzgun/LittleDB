@@ -29,6 +29,20 @@ bool Page::addRecordInContent(string &record) {
   return true;
 }
 
+pair<bool,int> Page::addRecordInContent1(string &record) {
+  pair<bool,int> result;
+  if (record.size() > capacity) {
+    result.first = false;
+    result.second = capacity;
+    return result;
+  }
+  contentRFL += record + "\n";
+  capacity -= record.size();
+  result.first = true;
+  result.second = capacity;
+  return result;
+}
+
 bool Page::deleteRecordInContent(int index) {
   if (index < 0 || index >= contentRFL.size()) {
     return false;
