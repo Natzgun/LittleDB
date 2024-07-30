@@ -57,7 +57,7 @@ página en ese frame.
 // SEGIO CASTILLO Y ERICK MALCOACCHA
 void BufferManager::loadPageFromDiskClock(int pageID, string path, char _mode) {
   bool mode = _mode == 'W' ? true : false;
-  if (bpool.isPageLoaded(pageID)) {
+  if (bpool.isPageLoaded(pageID)) { 
     bpool.getFrame(bpool.getFrameId(pageID)).addRequest(mode);
     cout << "La pagina ya esta cargada\n";
     if (_mode == 'L' && !bpool.getFrame(bpool.getFrameId(pageID)).isDirty()) {
@@ -132,19 +132,23 @@ void BufferManager::loadPageFromDiskClock(int pageID, string path, char _mode) {
     return;
   }
   cout << "\n****************************************************\n";
-  bpool.clock_Replacement(pageID, path, mode, content, blockCapacity, header);
+  int killPage = bpool.clock_Replacement(pageID, path, mode, content, blockCapacity, header);
+  if(killPage != -1){
+    killProcess(killPage); 
+    bpool.clock_Replacement(pageID, path, mode, content, blockCapacity, header);
+  }
   cout << "\n****************************************************\n";
   bpool.printTableFrame();
 }
 
-void BufferManager::killProcess(int pageID) {
+bool BufferManager::killProcess(int pageID) {
   /*
   if (bpool.getFrames()[bpool.getFrameId(pageID)].getPinned() == true) {
     cout << "Hey, hey, hey... Esta pagina esta PINEADA no la puedes tocar \n";
     return;
   }
   */
-
+  bool ans = false;
   std::string killed;
   bpool.getFrames()[bpool.getFrameId(pageID)].showVector();
   int salida = bpool.getFrames()[bpool.getFrameId(pageID)].freeRequest();
@@ -157,6 +161,7 @@ void BufferManager::killProcess(int pageID) {
     cin >> killed;
     if (killed == "Si") {
       savePageToDisk(pageID);
+      ans = 1;
     }
   } else if (salida == -1) {
     cout << "No se puede liberar procesos que no existen\n";
@@ -164,6 +169,7 @@ void BufferManager::killProcess(int pageID) {
   bpool.modifyPinInExistingFrame(pageID, 'k');
   // bpool.incrementHistory();
   bpool.printTableFrame();
+  return ans;
 }
 
 void BufferManager::printTableFrame() { bpool.printTableFrame(); }

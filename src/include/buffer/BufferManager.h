@@ -19,7 +19,7 @@ public:
   // Métodos
   void loadPageFromDisk(string blockPath, int pageID, char _mode);
 
-  void killProcess(int pageID);
+  bool killProcess(int pageID);
 
   void savePageToDisk(int pageID);
 
