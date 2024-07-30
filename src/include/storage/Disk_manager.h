@@ -53,5 +53,9 @@ public:
   string getBlockToTree(const string relation);
 
   void updateMapOfRelationHF(const string &relation, const string &blockPath, int updateSlot);
+
+  vector<string> getBlockPaths(string filePath);
+  vector<string> identifySectorsForBlock(string blockPath);
+  void distributeBlocksInSectors(string relation);
 };
 #endif //DISK_MANAGER_H

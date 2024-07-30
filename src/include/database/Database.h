@@ -44,5 +44,7 @@ public:
   void loadDataInFiles();
 
   void adminBtree();
+
+  void saveSectors(string relation);
 };
 #endif //DATABASE_H

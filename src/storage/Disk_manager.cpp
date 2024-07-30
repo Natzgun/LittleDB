@@ -352,3 +352,79 @@ void Disk_manager::saveMapOfRelationHF() {
     } 
 }
 
+
+vector<string> Disk_manager::getBlockPaths(string filePath) {
+  ifstream file(filePath);
+  vector<string> blockPaths;
+  string line;
+
+  while (getline(file, line)) {
+    size_t pos = line.find('#');
+    if (pos != string::npos) {
+      blockPaths.push_back(line.substr(pos + 1));
+    }
+  }
+
+  return blockPaths;
+}
+
+vector<string> Disk_manager::identifySectorsForBlock(string blockPath) {
+  ifstream file(blockPath);
+  vector<string> sectors;
+  string line;
+  size_t lastSlash = blockPath.find_last_of('/');
+  string basePath = blockPath.substr(0, lastSlash + 1);
+
+  while (getline(file, line)) {
+    if (line.find("sectors") != string::npos) {
+      istringstream iss(line);
+      string token;
+      getline(iss, token, '#'); // Saltar la palabra "sectors"
+      while (getline(iss, token, '#')) {
+        if (token[0] == 'C') {
+          token = token.substr(1); // Eliminar la "C" del nombre del sector
+        }
+        sectors.push_back(basePath + token);
+      }
+    }
+  }
+
+  return sectors;
+}
+
+void Disk_manager::distributeBlocksInSectors(string relation) {
+  string relationFilePath = "../../data/heapfiles/" + relation + ".txt";
+  vector<string> blockPaths = getBlockPaths(relationFilePath);
+
+  for (const string& blockPath : blockPaths) {
+    vector<string> sectors = identifySectorsForBlock(blockPath);
+
+    // Leer el contenido del bloque
+    ifstream blockFile(blockPath);
+    string line;
+    bool isDataSection = false;
+    vector<string> records;
+
+    while (getline(blockFile, line)) {
+      if (line.empty()) continue;
+      if (line.find("sectors") != string::npos || line.find("blockCapacity") != string::npos || line.find("FREE#HEADER") != string::npos) {
+        isDataSection = false;
+      } else if (isdigit(line[0])) {
+        isDataSection = true;
+      }
+
+      if (isDataSection) {
+        records.push_back(line);
+      }
+    }
+
+    // Distribuir los registros en los sectores
+    size_t sectorIndex = 0;
+    for (const string& record : records) {
+      string sectorPath = sectors[sectorIndex];
+      ofstream sectorFile(sectorPath, ios_base::app); // Append mode
+      sectorFile << record << endl;
+      sectorIndex = (sectorIndex + 1) % sectors.size();
+    }
+  }
+}

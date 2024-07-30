@@ -351,3 +351,7 @@ pair<int,int> DatabaseMediator:: setClave(string relation){
 
   return longitud[relation];
 }
+
+void DatabaseMediator::medSaveBlocksInSectors(string relation) {
+  diskManager.distributeBlocksInSectors(relation);
+}
