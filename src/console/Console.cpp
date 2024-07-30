@@ -101,6 +101,12 @@ void Console::execCommand(string &command) {
     db.viewRam();
   } else if (command.find("Btree") == 0) {
     db.adminBtree();
+  } else if (command.find("distribute") == 0) {
+    string relation;
+    cout << "Ingrese el nombre de la relación: ";
+    cin >> relation;
+    cout << "Distribuyendo bloques en sectores..." << endl;
+    db.saveSectors(relation);
   } else {
     cout << "Comando no reconocido." << endl;
   }

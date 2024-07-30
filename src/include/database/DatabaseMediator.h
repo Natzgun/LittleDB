@@ -28,7 +28,7 @@ class DatabaseMediator {
   pair<vector<string>, vector<pair<int,int>>> parseRelation(const string& relationString);
   pair<int,int> setClave(string relation);
 
-  public:
+public:
   DatabaseMediator();
   void addRecord(string& relation, string record, bool bucle = false, bool end = false);
   void adminRam();
@@ -36,6 +36,8 @@ class DatabaseMediator {
   void saveDataInRAM();
   void loadDataInFiles();
   void adminBplusTree();
+
+  void medSaveBlocksInSectors(string relation);
 };
 
 #endif

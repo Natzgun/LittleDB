@@ -364,3 +364,7 @@ void Database::loadDataInFiles() {
 void Database::adminBtree() {
   dbMediator.adminBplusTree();
 }
+
+void Database::saveSectors(string relation) {
+  dbMediator.medSaveBlocksInSectors(relation);
+}
