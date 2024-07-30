@@ -42,5 +42,7 @@ public:
   void saveDataInRAM();
 
   void loadDataInFiles();
+
+  void adminBtree();
 };
 #endif //DATABASE_H

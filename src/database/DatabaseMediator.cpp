@@ -54,10 +54,10 @@ int DatabaseMediator::convertPathToPage(const string& blockPath, char mode) {
 
 
 // Erick Malcoaccha
-BPTree & DatabaseMediator::getOrCreateBPTree(string relation) {
+BPlusTree & DatabaseMediator::getOrCreateBPTree(string relation) {
   auto it = bPlusTrees.find(relation);
   if (it == bPlusTrees.end()) {
-    BPTree newTree;
+    BPlusTree newTree;
     bPlusTrees[relation] = newTree;
     return bPlusTrees[relation];
   }
@@ -66,8 +66,8 @@ BPTree & DatabaseMediator::getOrCreateBPTree(string relation) {
 
 // Erick Malcoaccha
 string DatabaseMediator::getBlockFromBPtreeForInsert(string key, string relation) {
-  BPTree &bptree = getOrCreateBPTree(relation);
-  pair<string,string> block = bptree.search(stoi(key));
+  BPlusTree &bptree = getOrCreateBPTree(relation);
+  pair<string,string> block = bptree.search(key);
 
   /*
    * Retorna el bloque segido de un # y al final su desplazamiento
@@ -231,4 +231,29 @@ void DatabaseMediator::saveDataInRAM() {
 
 void DatabaseMediator::loadDataInFiles() {
   diskManager.loadDiskAttributesFromFile();
+}
+
+void DatabaseMediator::adminBplusTree() {
+  BPlusTree tree(3);
+
+  // Insert example data
+  tree.set("key4", {"path1", "value1"});
+  tree.set("key2", {"path2", "value2"});
+  tree.set("key3", {"path3", "value3"});
+  tree.set("key1", {"path3", "value3"});
+
+  tree.remove("key3");
+  // Export tree to DOT file
+  tree.exportToDot("tree.dot");
+
+
+  //tree.remove("key2");
+  // Print tree by levels
+  tree.printTreeByLevels();
+
+
+  // Search for a key
+  auto result = tree.search("key2");
+  cout << "Found: " << result.first << ", " << result.second << endl;
+
 }

@@ -99,7 +99,9 @@ void Console::execCommand(string &command) {
     db.readCSV(command);
   } else if (command.find("Ram") == 0) {
     db.viewRam();
-  }else {
+  } else if (command.find("Btree") == 0) {
+    db.adminBtree();
+  } else {
     cout << "Comando no reconocido." << endl;
   }
 }

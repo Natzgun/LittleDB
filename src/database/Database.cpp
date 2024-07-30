@@ -360,3 +360,7 @@ void Database::saveDataInRAM() {
 void Database::loadDataInFiles() {
   dbMediator.loadDataInFiles();
 }
+
+void Database::adminBtree() {
+  dbMediator.adminBplusTree();
+}

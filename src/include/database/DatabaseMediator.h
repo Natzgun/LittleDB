@@ -3,7 +3,7 @@
 
 #include "buffer/BufferManager.h"
 #include "storage/Disk_manager.h"
-#include "storage/index/BPTree.h"
+#include "storage/index/BPlusTree.h"
 #include <iostream>
 #include <string>
 
@@ -15,9 +15,9 @@ class DatabaseMediator {
     int convertPathToPage(const string& path, char mod);
   BufferManager bfManager;
   Disk_manager diskManager;
-  map<string,BPTree> bPlusTrees;
+  map<string,BPlusTree> bPlusTrees;
 
-  BPTree& getOrCreateBPTree(string relation);
+  BPlusTree& getOrCreateBPTree(string relation);
   string getBlockFromBPtreeForInsert(string key, string relation);
   vector<string> getBlocksForRead(string key, string relation);
   void fillBPtree(string relation);
@@ -30,6 +30,8 @@ class DatabaseMediator {
   void selectDiskStructureMediator(bool defaultDisk);
   void saveDataInRAM();
   void loadDataInFiles();
+
+  void adminBplusTree();
 };
 
 #endif

@@ -14,7 +14,7 @@ set(SOURCES
         buffer/Clock.cpp
         buffer/Frame.cpp
         buffer/Page.cpp
-        storage/index/BPTree.cpp
+        storage/index/BPlusTree.cpp
         storage/index/Node.cpp
         storage/index/Metadata.cpp
 )
