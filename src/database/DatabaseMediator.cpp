@@ -65,15 +65,81 @@ BPlusTree & DatabaseMediator::getOrCreateBPTree(string relation) {
 }
 
 // Erick Malcoaccha
-string DatabaseMediator::getBlockFromBPtreeForInsert(string key, string relation) {
+string DatabaseMediator::getBlockFromBPtreeForInsert(string key, string relation, bool space) {
   BPlusTree &bptree = getOrCreateBPTree(relation);
-  pair<string,string> block = bptree.search(key);
+  if((bptree.getRoot()->parent == nullptr && bptree.getRoot()->getNumKeys() == 0) || !space){ 
+    diskManager.fillMapOfRelation(relation); 
+    string getBlock = diskManager.getBlockToTree(relation);
+    bptree.set(key, {getBlock, "0"});
+    return getBlock;
+  } 
+  pair<string,string> getBlock = bptree.searchPolitica(bptree.getRoot(), key);
+  return getBlock.first;
+  
+}
 
-  /*
-   * Retorna el bloque segido de un # y al final su desplazamiento
-   * Ejemplo: 30#2
-   */
-  return block.second;
+vector<string> DatabaseMediator::split(const string& str, char delimiter) {
+    vector<string> tokens;
+    size_t start = 0;
+    size_t end = str.find(delimiter);
+
+    while (end != string::npos) {
+        tokens.push_back(str.substr(start, end - start));
+        start = end + 1;
+        end = str.find(delimiter, start);
+    }
+
+    // Add the last token
+    tokens.push_back(str.substr(start));
+
+    // Debugging: Print tokens
+
+    return tokens;
+}
+
+bool DatabaseMediator::findRelationInFile(string& linea,const string& relationName, const string& filename) {
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Error: No se pudo abrir el archivo." << endl;
+        return false;
+    }
+
+    string line;
+    while (getline(file, line)) {
+        if (line.find(relationName + "#") == 0) {
+            linea = line;
+            return true;
+        }
+    }
+    return false;
+}
+
+pair<vector<string>, vector<pair<int, int>>> DatabaseMediator::parseRelation(const string& relationString) {
+    // Debugging: Print the relation string
+
+    vector<string> tokens = split(relationString, '#');
+
+    if (tokens.size() < 4 || (tokens.size() - 1) % 3 != 0) {
+        throw invalid_argument("Cadena de entrada inválida");
+    }
+
+    string relationName = tokens[0];
+
+    vector<string> columnNames;
+    vector<pair<int, int>> columnPositions;
+
+    int currentPosition = 0;
+    for (size_t i = 1; i < tokens.size(); i += 3) {
+        if (i + 2 >= tokens.size()) {
+            throw invalid_argument("Cadena de entrada inválida: falta información de columna");
+        }
+        columnNames.push_back(tokens[i]);
+        int size = stoi(tokens[i + 2]);
+        columnPositions.push_back(make_pair(currentPosition, currentPosition + size - 1));
+        currentPosition += size;
+    }
+
+    return make_pair(columnNames, columnPositions);
 }
 
 // Erick Malcoaccha
@@ -101,44 +167,41 @@ DatabaseMediator::DatabaseMediator() : bfManager(4) {
 
 // Erik Ramos Quispe
 void DatabaseMediator::addRecord(string &relation, string record, bool bucle, bool end) {
-  static map<string, bool> relationMap;
-  auto it = relationMap.find(relation);
-  if (it == relationMap.end()) {
-    relationMap[relation] = true; 
-    diskManager.fillMapOfRelation(relation);
-  }
-
   pair<bool,int> result;
   static int pageID;
   static bool first = true;
+  pair<int,int> iniFin = setClave(relation);
+  size_t inicio = iniFin.first;
+  size_t fin = iniFin.second;
+  string key = record.substr(inicio, fin - inicio + 1);
+  string PathBlock = getBlockFromBPtreeForInsert(key, relation, true);
   if(end){
     first = true;
     return;
   }
 
   if(!bucle){
-    string newPath = diskManager.getBlockToTree(relation);
-    pageID = convertPathToPage(newPath, 'W');
+    pageID = convertPathToPage(PathBlock, 'W');
     result = bfManager.addRecordInBuffer1(pageID, record);
     if(!result.first){
-      string newPath = diskManager.getBlockToTree(relation);
-      pageID = convertPathToPage(newPath, 'W');
+      PathBlock = getBlockFromBPtreeForInsert(key, relation, false);
+      pageID = convertPathToPage(PathBlock, 'W');
       bfManager.addRecordInBuffer(pageID, record);
     }
   }else{
     if(first){
-      string newPath = diskManager.getBlockToTree(relation);
-      pageID = convertPathToPage(newPath, 'W'); 
+      pageID = convertPathToPage(PathBlock, 'W'); 
       first = false;
     }
     result = bfManager.addRecordInBuffer1(pageID, record);
     if(!result.first){
-      string newPath = diskManager.getBlockToTree(relation);
-      pageID = convertPathToPage(newPath, 'W');
+      PathBlock = getBlockFromBPtreeForInsert(key, relation, false);
+      pageID = convertPathToPage(PathBlock, 'W');
       bfManager.addRecordInBuffer(pageID, record);
     }
   }
   diskManager.updateMapOfRelationHF(relation,bfManager.getPathName(pageID), result.second);
+
 }
 
 // Sebastian Mendoza y Sergio Castillo
@@ -234,7 +297,12 @@ void DatabaseMediator::loadDataInFiles() {
 }
 
 void DatabaseMediator::adminBplusTree() {
-  BPlusTree tree(3);
+  
+  cout << "ingresa el nombre de la relacion" << endl;
+  string nameRelation; cin >> nameRelation;
+  bPlusTrees[nameRelation].printTreeByLevels();
+
+  /*BPlusTree tree(3);
 
   // Insert example data
   tree.set("key4", {"path1", "value1"});
@@ -251,9 +319,35 @@ void DatabaseMediator::adminBplusTree() {
   // Print tree by levels
   tree.printTreeByLevels();
 
-
   // Search for a key
   auto result = tree.search("key2");
-  cout << "Found: " << result.first << ", " << result.second << endl;
+  cout << "Found: " << result.first << ", " << result.second << endl;*/
 
+}
+
+
+pair<int,int> DatabaseMediator:: setClave(string relation){
+  static map<string,pair<int,int>> longitud;
+  pair<int,int> iniFin;
+  bool existe = longitud.find(relation) != longitud.end();
+  
+  if(bPlusTrees.find(relation) == bPlusTrees.end() && !existe){
+    cout << "No existe el arbol B+ para la relacion " << relation << endl;
+    cout << "Elige una clave para crear el arbol B+ para la relacion " << relation << endl;
+    string linea;
+    if(!findRelationInFile(linea,relation)){
+      cout << "No existe la relacion " << relation << endl;
+      return iniFin;
+    }
+    pair<vector<string>, vector<pair<int,int>>> relationData = parseRelation(linea);
+    for(int i = 0; i < relationData.first.size(); i++){
+      cout  << i + 1 << ": " << relationData.first[i] << endl;
+    }
+    cout << "Elige la columa para crear el arbol B+ para la relacion " << relation << endl;
+    int opcion; cin >> opcion;
+    iniFin = relationData.second[opcion - 1];
+    longitud[relation] = iniFin;
+  }
+
+  return longitud[relation];
 }

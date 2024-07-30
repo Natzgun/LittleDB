@@ -277,3 +277,44 @@ void BPlusTree::handleUnderflow(Node* node) {
         }
     }
 }
+
+pair<Node*, int> BPlusTree::searchNode(Node* root, string key) {
+    Node* current = this -> root;
+    while (!current->isLeaf) {
+        int i;
+        for (i = 0; i < current->getNumKeys(); i++) {
+            if (key < current->keys[i]) {
+                break;
+            }
+        }
+        current = current->children[i];
+    }
+    // Encontrar la posición exacta en la hoja
+    int pos;
+    for (pos = 0; pos < current->getNumKeys(); pos++) {
+        if (key <= current->keys[pos]) {
+            break;
+        }
+    }
+    return {current, pos};
+}
+
+pair<string, string> BPlusTree::searchPolitica(Node* root, string key) {
+    auto [leaf, pos] = searchNode(root, key);
+    // Si encontramos la clave exacta
+    pair<string,string> result = search(key);
+    if (result.first != "NullSearch") {
+        return result;
+    }
+    if (pos != 0) {
+        pos --;
+    } 
+    auto getData = leaf -> getMetadata(pos);
+    string path = getData.first; // Ajusta esto según tu implementación
+    string offset = getData.second; // Ajusta esto según tu implementación
+    return {path, offset};
+}
+
+Node* BPlusTree::getRoot() const {
+    return root;
+}

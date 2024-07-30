@@ -20,7 +20,7 @@ public:
   vector<pair<string, string>> rutas;
 
   Node(Node* parent = nullptr, bool isLeaf = false, Node* prev_ = nullptr, Node* next_ = nullptr);
-
+  int getNumKeys() const;
   int indexOfChild(const string& key) const;
   int indexOfKey(const string& key) const;
   Node* getChild(const string& key);
@@ -28,6 +28,7 @@ public:
   tuple<string, Node*, Node*> splitInternal();
   void set(const string& key, const pair<string, string>& ruta);
   tuple<string, Node*, Node*> splitLeaf();
+  pair<string,string> getMetadata(int pos);
   void printNode() const;
 };
 

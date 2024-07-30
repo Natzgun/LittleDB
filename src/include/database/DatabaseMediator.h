@@ -12,16 +12,21 @@ using namespace std;
 class DatabaseMediator {
   private:
   void loadBlockMediator(int blockID, char mode);
-    int convertPathToPage(const string& path, char mod);
+  int convertPathToPage(const string& path, char mod);
   BufferManager bfManager;
   Disk_manager diskManager;
   map<string,BPlusTree> bPlusTrees;
 
   BPlusTree& getOrCreateBPTree(string relation);
-  string getBlockFromBPtreeForInsert(string key, string relation);
+  string getBlockFromBPtreeForInsert(string key, string relation, bool space = true);
   vector<string> getBlocksForRead(string key, string relation);
   void fillBPtree(string relation);
   void loadBPtree(string relation);
+  void saveBPtree(string relation);
+  vector<string> split(const string& str, char delimiter);
+  bool findRelationInFile(string &linea,const string& relationName,const string& filename = "../../data/usr/db/schemas.txt");
+  pair<vector<string>, vector<pair<int,int>>> parseRelation(const string& relationString);
+  pair<int,int> setClave(string relation);
 
   public:
   DatabaseMediator();
@@ -30,7 +35,6 @@ class DatabaseMediator {
   void selectDiskStructureMediator(bool defaultDisk);
   void saveDataInRAM();
   void loadDataInFiles();
-
   void adminBplusTree();
 };
 

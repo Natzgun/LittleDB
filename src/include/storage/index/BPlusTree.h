@@ -15,14 +15,16 @@ using namespace std;
 
 class BPlusTree {
     void writeNode(Node* node, ofstream& outFile) const;
-public:
     Node* root;
     int maxCapacity;
     int minCapacity;
     int depth;
+    pair<Node*, int> searchNode(Node* root, string key);
+    
+public:
 
     BPlusTree(int _maxCapacity = 4);
-
+    Node* getRoot() const;
     void exportToDot(const string& filename) const;
     Node* findLeaf(const string& key);
     void set(const string& key, const pair<string, string>& ruta);
@@ -36,6 +38,7 @@ public:
     tuple<string, Node*> mergeInternal(int myPositionInParent, Node* node, Node* next);
     tuple<string, Node*> mergeLeaf(Node* node, Node* next);
     void search(Node* node, const string& key, pair<string, string>& result);
+    pair<string, string> searchPolitica(Node* root, string key);
     pair<string, string> search(const string& key);
     void printTreeByLevels() const;
     void remove(const string& key);

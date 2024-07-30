@@ -89,3 +89,14 @@ void Node::printNode() const {
     cout << endl;
     */
 }
+
+pair<string, string> Node::getMetadata(int pos) {
+    pair<string, string> metadata;
+    metadata.first = rutas[pos].first;
+    metadata.second = rutas[pos].second; 
+    return metadata;
+}
+
+int Node::getNumKeys() const {
+    return keys.size();
+}
