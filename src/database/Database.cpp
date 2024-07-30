@@ -338,7 +338,7 @@ void Database::readCSV(string &command) {
     string values = formatRecordRLF(tableSchema, lineOfCSV);
     dbMediator.addRecord(tablename, values, true);
   }
-  dbMediator.addRecord(tablename,"end Bucle",false,true);
+  dbMediator.addRecord(tablename,"1000",false,true);
 
   csvFile.close();
 
