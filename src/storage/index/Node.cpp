@@ -1,5 +1,4 @@
 #include "storage/index/Node.h"
-#include "storage/index/Metadata.h"
 
 Node::Node(Node* parent, bool isLeaf, Node* prev_, Node* next_)
     : parent(parent), isLeaf(isLeaf), prev(prev_), next(next_) {
@@ -25,27 +24,27 @@ Node* Node::getChild(const string& key) {
     return children[indexOfChild(key)];
 }
 
-void Node::setChild(const string& key, const vector<Node*>& value) {
+void Node::setChild(const string& key, Node* left, Node* right) {
     int i = indexOfChild(key);
     keys.insert(keys.begin() + i, key);
-    children.erase(children.begin() + i);
-    children.insert(children.begin() + i, value.begin(), value.end());
+    children[i] = left;
+    children.insert(children.begin() + i + 1, right);
 }
 
 tuple<string, Node*, Node*> Node::splitInternal() {
-    Node* left = new Node(parent, false, nullptr, nullptr);
+    Node* left = new Node(parent, false);
     int mid = keys.size() / 2;
 
-    copy(keys.begin(), keys.begin() + mid, back_inserter(left->keys));
-    copy(children.begin(), children.begin() + mid + 1, back_inserter(left->children));
+    left->keys.assign(keys.begin(), keys.begin() + mid);
+    left->children.assign(children.begin(), children.begin() + mid + 1);
 
     for (Node* child : left->children) {
         child->parent = left;
     }
 
     string key = keys[mid];
-    keys.erase(keys.begin() + mid);
-    children.erase(children.begin() + mid + 1);
+    keys.erase(keys.begin(), keys.begin() + mid + 1);
+    children.erase(children.begin(), children.begin() + mid + 1);
 
     return make_tuple(key, left, this);
 }
@@ -77,7 +76,7 @@ void Node::printNode() const {
     cout << "Node keys: ";
     for (const auto& key : keys) cout << key << " ";
     cout << endl;
-    /*
+
     if (isLeaf) {
         cout << "Leaf rutas: ";
         for (const auto& ruta : rutas) cout << "[" << ruta.first << ", " << ruta.second << "] ";
@@ -87,13 +86,12 @@ void Node::printNode() const {
     cout << "Children: ";
     for (const auto& child : children) cout << (child ? "[child] " : "[null] ");
     cout << endl;
-    */
 }
 
 pair<string, string> Node::getMetadata(int pos) {
     pair<string, string> metadata;
     metadata.first = rutas[pos].first;
-    metadata.second = rutas[pos].second; 
+    metadata.second = rutas[pos].second;
     return metadata;
 }
 

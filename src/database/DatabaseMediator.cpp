@@ -72,9 +72,10 @@ string DatabaseMediator::getBlockFromBPtreeForInsert(string key, string relation
     string getBlock = diskManager.getBlockToTree(relation);
     bptree.set(key, {getBlock, "0"});
     return getBlock;
-  } 
-  pair<string,string> getBlock = bptree.searchPolitica(bptree.getRoot(), key);
+  }
+  pair<string,string> getBlock = bptree.searchPolicy(bptree.getRoot(), key);
   bptree.set(key, {getBlock.first, "0"});
+
   return getBlock.first;
   
 }
@@ -298,53 +299,33 @@ void DatabaseMediator::loadDataInFiles() {
 }
 
 void DatabaseMediator::adminBplusTree() {
-    cout << "Ingrese el nombre de la relación: " << endl;
-    string nameRelation; 
-    cin >> nameRelation;
-    BPlusTree &tree = getOrCreateBPTree(nameRelation);
+  
+  cout << "ingresa el nombre de la relacion" << endl;
+  string nameRelation; cin >> nameRelation;
+  bPlusTrees[nameRelation].printTree();
 
-    // Exportar árbol a archivo DOT
-    tree.exportToDot(nameRelation + "tree.dot");
+  /*BPlusTree tree(3);
 
-    string searchKey;
-    while (true) {
-        cout << "Ingrese la clave a buscar (o 'exit' para salir): ";
-        cin >> searchKey;
+  // Insert example data
+  tree.set("key4", {"path1", "value1"});
+  tree.set("key2", {"path2", "value2"});
+  tree.set("key3", {"path3", "value3"});
+  tree.set("key1", {"path3", "value3"});
 
-        if (searchKey == "exit") {
-            break;
-        }
+  tree.remove("key3");
+  // Export tree to DOT file
+  tree.exportToDot("tree.dot");
 
-        auto result = tree.search(searchKey);
-        cout << "Found: " << result.first << ", " << result.second << endl;
-    }
 
-    // Imprimir el árbol por niveles
-    //tree.printTreeByLevels();
+  //tree.remove("key2");
+  // Print tree by levels
+  tree.printTreeByLevels();
 
-    /* Código comentado para referencia y pruebas adicionales
-    BPlusTree tree(3);
+  // Search for a key
+  auto result = tree.search("key2");
+  cout << "Found: " << result.first << ", " << result.second << endl;*/
 
-    // Insert example data
-    tree.set("key4", {"path1", "value1"});
-    tree.set("key2", {"path2", "value2"});
-    tree.set("key3", {"path3", "value3"});
-    tree.set("key1", {"path3", "value3"});
-
-    tree.remove("key3");
-    // Export tree to DOT file
-    tree.exportToDot("tree.dot");
-
-    //tree.remove("key2");
-    // Print tree by levels
-    tree.printTreeByLevels();
-
-    // Search for a key
-    auto result = tree.search("key2");
-    cout << "Found: " << result.first << ", " << result.second << endl;
-    */
 }
-
 
 
 pair<int,int> DatabaseMediator:: setClave(string relation){
