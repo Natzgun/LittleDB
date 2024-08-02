@@ -153,11 +153,34 @@ pair<vector<string>, vector<pair<int, int>>> DatabaseMediator::parseRelation(con
 }
 
 // Erick Malcoaccha
-vector<string> DatabaseMediator::getBlocksForRead(string key, string relation) {
-
-  /*
-   * Retorna la lista de bloques de una relacion en base a una condicion
-   */
+vector<string> DatabaseMediator::getBlocksForRead(string key, string relation, int condition) {
+  vector<string> blocks;
+  if(condition == 1){
+    vector<pair<string,string>> metadata = bPlusTrees[relation].collectMetadata();
+    for(int i = 0; i < metadata.size(); i++){
+      blocks.push_back(metadata[i].first);
+    }
+    return blocks;
+  }
+  else if(condition == 2){
+    pair<string,string> metaData = bPlusTrees[relation].searchPolicy(bPlusTrees[relation].getRoot(), key);
+    blocks.push_back(metaData.first);
+    return blocks;
+  }
+  else if(condition == 3){
+    vector<pair<string,string>> metadata = bPlusTrees[relation].collectMetadataMoreFromKey(key);
+    for(int i = 0; i < metadata.size(); i ++ ){
+      blocks.push_back(metadata[i].first);
+    }
+    return blocks;
+  }
+  else if(condition == 4){
+    vector<pair<string,string>> metadata = bPlusTrees[relation].collectMetadataUpToKey(key);
+    for(int i = 0; i < metadata.size(); i ++ ){
+      blocks.push_back(metadata[i].first);
+    }
+    return blocks;
+  }
   return {};
 }
 
@@ -386,9 +409,12 @@ pair<int,int> DatabaseMediator:: setClave(string relation){
       return iniFin;
     }
     pair<vector<string>, vector<pair<int,int>>> relationData = parseRelation(linea);
+    int longitudTotal = 0;
     for(int i = 0; i < relationData.first.size(); i++){
       cout  << i + 1 << ": " << relationData.first[i] << endl;
     }
+    longitudTotal = relationData.second[relationData.second.size() - 1].second;
+    sizeRecord[relation] = longitudTotal;
     cout << "Elige la columa para crear el arbol B+ para la relacion " << relation << endl;
     int opcion; cin >> opcion;
     iniFin = relationData.second[opcion - 1];
@@ -400,4 +426,77 @@ pair<int,int> DatabaseMediator:: setClave(string relation){
 
 void DatabaseMediator::medSaveBlocksInSectors(string relation) {
   diskManager.distributeBlocksInSectors(relation);
+}
+
+void DatabaseMediator::querys() {
+    while (true) {
+        int choice = Query::menuOptions();
+        if (choice == 5) {
+            break;
+        }
+        string tableName;
+        cout << "Enter the table name: ";
+        cin >> tableName;
+        if (bPlusTrees[tableName].getRoot() == nullptr) {
+            cout << "No se creo la tabla o no existe la relacion " << tableName << '\n';
+            continue;
+        }
+        string key;
+        string linea = "";
+        findRelationInFile(linea, tableName);
+        pair<vector<string>, vector<pair<int, int>>> colAndPos = parseRelation(linea);
+        int columnas = Query::selectColumna(colAndPos.first);
+        cout << "Enter the key: ";
+        cin >> key;
+        static int columna = 0;
+        static bool first = true;
+        vector<string> block;
+
+        switch (choice) {
+            case 1:
+                block = getBlocksForRead("", tableName, 1); 
+                for (int i = 0; i < block.size(); i++) {
+                    int page = convertPathToPage(block[i], 'R');
+                    string content = bfManager.getContentPage(page); 
+                    int desplazamiento = sizeRecord[tableName];
+                    pair<int, int> iniFin = colAndPos.second[columnas - 1]; 
+                    Query::selectAllColumns(content, desplazamiento, iniFin);
+                }
+                break;
+            case 2: 
+                block = getBlocksForRead(key, tableName, 2);
+                for (int i = 0; i < block.size(); i++) {
+                    int page = convertPathToPage(block[i], 'R');
+                    string content = bfManager.getContentPage(page); 
+                    int desplazamiento = sizeRecord[tableName];
+                    pair<int, int> iniFin = colAndPos.second[columnas - 1]; 
+                    Query::searchKey(key, content, desplazamiento, iniFin);
+                }
+                break;
+            case 3:
+                block = getBlocksForRead(key, tableName, 3);
+                for(int i = 0; i < block.size(); i++){
+                    int page = convertPathToPage(block[i], 'R');
+                    string content = bfManager.getContentPage(page);
+                    int desplazamiento = sizeRecord[tableName];
+                    pair<int, int> iniFin = colAndPos.second[columnas - 1];
+                    Query::selectForRangeMayor(key, content, desplazamiento, {colAndPos.first, iniFin}); 
+
+                }
+                break;
+            case 4:
+                block = getBlocksForRead(key, tableName, 4);
+                for(int i = 0; i < block.size(); i++){
+                    int page = convertPathToPage(block[i], 'R');
+                    string content = bfManager.getContentPage(page);
+                    int desplazamiento = sizeRecord[tableName];
+                    pair<int, int> iniFin = colAndPos.second[columnas - 1];
+                    Query::selectForRangeMenor(key, content, desplazamiento, {colAndPos.first, iniFin}); 
+                }
+                break;
+            default:
+                cout << "Invalid option. Try again." << endl;
+                break;
+        }
+    }
 }

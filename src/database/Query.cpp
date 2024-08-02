@@ -3,27 +3,31 @@
 int Query::menuOptions(){ 
   cout << "1. Select all columns" << endl;
   cout << "2. Search for a key" << endl;
-  cout << "3. Select for a range" << endl;
-  cout << "4. Exit" << endl;
+  cout << "3. Select for a range key <= X " << endl;
+  cout << "4. Select for a range key >= X " << endl;
+  cout << "5. Exit" << endl;
   cout << "Enter your choice: ";
   int choice; cin >> choice;
   return choice;
 }
 
-void Query::selectAllColumns(string &tableName){
-  cout << "SELECT * FROM " << tableName << endl;
-
+void Query::selectAllColumns(string records, int desplazamiento, pair<int,int> colAndPos){
+  int inicio = colAndPos.first;
+  int fin = colAndPos.second;
+  int length = fin - inicio + 1; 
+  int current = 0;
+  int* pointerCurrent = &current;
+  optionsSearchs(1,desplazamiento,records,inicio,length,pointerCurrent);
+  
 }
 
-void Query::searchKey(string key, string records, int desplazamiento, pair<vector<string>,pair<int,int>> colAndPos){
-  int setOptionRange = selectColumna(colAndPos.first);
-  int condition = selectOptionRange();
-  int inicio = colAndPos.second.first;
-  int fin = colAndPos.second.second;
+void Query::searchKey(string key, string records, int desplazamiento, pair<int,int> colAndPos){
+  int inicio = colAndPos.first;
+  int fin = colAndPos.second;
   int length = fin - inicio + 1; 
-  int current = desplazamiento;
+  int current = 0;
   int* pointerCurrent = &current;
-  optionsSearchs(1,desplazamiento,records,inicio,length,pointerCurrent,key);
+  optionsSearchs(2,desplazamiento,records,inicio,length,pointerCurrent,key);
 }
 
 
@@ -37,49 +41,57 @@ int Query:: selectColumna(vector<string> columns){
   return column;
 }
 
-int Query::selectOptionRange(){
-  cout << "Enter the condition: ";
-  cout << "1. >=" << endl;
-  cout << "2. <=" << endl;
-  int condition; cin >> condition;
-  return condition;
-}
 
-
-void Query::selectForRange(string key, string records, int desplazamiento, pair<vector<string>,pair<int,int>> colAndPos){
-  int setOptionRange = selectColumna(colAndPos.first);
-  int condition = selectOptionRange();
+void Query::selectForRangeMayor(string key, string records, int desplazamiento, pair<vector<string>,pair<int,int>> colAndPos){
+  static int condition;
   int inicio = colAndPos.second.first;
   int fin = colAndPos.second.second;
   int length = fin - inicio + 1; 
-  int current = desplazamiento;
+  int current = 0;
   int* pointerCurrent = &current;
-  if(condition == 1){
-    cout << "SELECT * FROM " << records << " WHERE " << colAndPos.first[setOptionRange - 1] << " <= " << key << endl;
-    optionsSearchs(2,desplazamiento,records,inicio,length,pointerCurrent,key);
-
-  }else{
-    cout << "SELECT * FROM " << records << " WHERE " << colAndPos.first[setOptionRange - 1] << " >= " << key << endl;
-    optionsSearchs(3,desplazamiento,records,inicio,length,pointerCurrent,key); 
-  }
+  optionsSearchs(3,desplazamiento,records,inicio,length,pointerCurrent,key);
 }
 
+void Query::selectForRangeMenor(string key, string records, int desplazamiento, pair<vector<string>,pair<int,int>> colAndPos){
+  static int condition;
+  int inicio = colAndPos.second.first;
+  int fin = colAndPos.second.second;
+  int length = fin - inicio + 1; 
+  int current = 0;
+  int* pointerCurrent = &current;
+  optionsSearchs(4,desplazamiento,records,inicio,length,pointerCurrent,key);
+}
+
+string Query::removeSpaces(string input) {
+    std::string result;
+    for (char c : input) {
+        if (c != '\n') {
+            result += c;
+        }
+    }
+    return result;
+}
 void Query::optionsSearchs(int option, int desplazamiento, string records,int inicio, int length, int* current, string key){
-  for(int i = 0; i < records.size(); i+= desplazamiento){
-    string recordCut = records.substr(*current - 1,desplazamiento); 
+  string recordsSinNewLine = removeSpaces(records);
+  int longitud = recordsSinNewLine.size();
+  for(int i = 0; i < longitud; i+= desplazamiento){
+    string recordCut = recordsSinNewLine.substr(*current,desplazamiento); 
     string keyCurrent = recordCut.substr(inicio,length);
-    *current += desplazamiento;
+    *current += desplazamiento + 1;
     if(option == 1){
-      if(key == keyCurrent){
-        cout << recordCut << endl;
-      }
+      cout << recordCut << endl;
     }else if(option == 2){
-      if(key >= keyCurrent){
+      if(key == keyCurrent){
         cout << recordCut << endl;
       }
     }
     else if(option == 3){
       if(key <= keyCurrent){
+        cout << recordCut << endl;
+      }
+    }
+    else if(option == 4){
+      if(key >= keyCurrent){
         cout << recordCut << endl;
       }
     }

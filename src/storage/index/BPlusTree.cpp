@@ -1,4 +1,5 @@
 #include "storage/index/BPlusTree.h"
+#include <unordered_set>
 
 BPlusTree::BPlusTree(int _maxCapacity) {
     root = new Node(nullptr, true);
@@ -352,4 +353,85 @@ void processFile(string fileName, BPlusTree& bpTree) {
 void BPlusTree::updateMetadata(Node *root, string key, string block, string offset) {
     auto [leaf, pos] = searchNode(root, key);
     leaf->rutas[pos] = {block, offset};
+}
+
+std::vector<std::pair<std::string, std::string>> BPlusTree::collectMetadata() {
+    std::vector<std::pair<std::string, std::string>> metadataVector;
+    std::unordered_set<std::string> seenBlocks;
+    Node* current = root;
+
+    // Navega hasta la hoja más a la izquierda
+    while (current && !current->isLeaf) {
+        current = current->children.front();
+    }
+
+    // Recorre todas las hojas
+    while (current) {
+        for (size_t i = 0; i < current->rutas.size(); ++i) {
+            const auto& metadata = current->rutas[i];
+            const std::string& block = metadata.first;
+            
+            if (seenBlocks.find(block) == seenBlocks.end()) {
+                metadataVector.push_back(metadata);
+                seenBlocks.insert(block);
+            }
+        }
+        current = current->next;
+    }
+
+    return metadataVector;
+}
+
+vector<pair<string, string>> BPlusTree::collectMetadataMoreFromKey(const std::string& key) {
+    std::vector<std::pair<std::string, std::string>> metadataVector;
+    std::unordered_set<std::string> seenBlocks;
+    Node* current = findLeaf(key);
+
+    // Iterar sobre las hojas a partir del nodo actual
+    while (current) {
+        for (size_t i = 0; i < current->rutas.size(); ++i) {
+            const auto& metadata = current->rutas[i];
+            const std::string& block = metadata.first;
+
+            if (seenBlocks.find(block) == seenBlocks.end()) {
+                metadataVector.push_back(metadata);
+                seenBlocks.insert(block);
+            }
+        }
+        current = current->next;
+    }
+
+    return metadataVector;
+}
+
+vector<pair<string, string>> BPlusTree::collectMetadataUpToKey(const std::string& key) {
+    std::vector<std::pair<std::string, std::string>> metadataVector;
+    std::unordered_set<std::string> seenBlocks;
+    Node* current = root;
+
+    // Navega hasta la hoja más a la izquierda
+    while (current && !current->isLeaf) {
+        current = current->children.front();
+    }
+
+    // Recorre todas las hojas y detén la recolección cuando la llave actual sea mayor que key
+    while (current) {
+        for (size_t i = 0; i < current->rutas.size(); ++i) {
+            const std::string& currentKey = current->keys[i];
+            const auto& metadata = current->rutas[i];
+            const std::string& block = metadata.first;
+
+            if (currentKey > key) {
+                return metadataVector;
+            }
+
+            if (seenBlocks.find(block) == seenBlocks.end()) {
+                metadataVector.push_back(metadata);
+                seenBlocks.insert(block);
+            }
+        }
+        current = current->next;
+    }
+
+    return metadataVector;
 }
