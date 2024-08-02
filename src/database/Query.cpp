@@ -51,14 +51,14 @@ int Query::selectOptionRange(){
 
 void Query::selectForRange(string key, string records, int desplazamiento, pair<vector<string>,pair<int,int>> colAndPos, bool existKey){
   static int setOptionRange;
-  if(!existKey){
+  if(existKey){
     setOptionRange = selectColumna(colAndPos.first);
   }
   int condition = selectOptionRange();
   int inicio = colAndPos.second.first;
   int fin = colAndPos.second.second;
   int length = fin - inicio + 1; 
-  int current = desplazamiento;
+  int current = 0;
   int* pointerCurrent = &current;
   if(condition == 1){
     optionsSearchs(3,desplazamiento,records,inicio,length,pointerCurrent,key);
