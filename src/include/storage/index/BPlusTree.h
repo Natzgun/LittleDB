@@ -45,6 +45,7 @@ public:
 
     pair<Node *, int> searchNode(Node *root, string key);
     pair<string, string> searchPolicy(Node *root, string key);
+    void updateMetadata(Node *root, string key, string block, string offset);
 };
 
 void processFile(string fileName, BPlusTree& bpTree);

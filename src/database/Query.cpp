@@ -1,4 +1,4 @@
-#include "Query.h"
+#include "database/Query.h"
 
 int Query::menuOptions(){ 
   cout << "1. Select all columns" << endl;
@@ -23,7 +23,7 @@ void Query::searchKey(string key, string records, int desplazamiento, pair<vecto
   int length = fin - inicio + 1; 
   int current = desplazamiento;
   int* pointerCurrent = &current;
-
+  optionsSearchs(1,desplazamiento,records,inicio,length,pointerCurrent,key);
 }
 
 

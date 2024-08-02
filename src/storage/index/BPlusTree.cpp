@@ -318,3 +318,7 @@ void processFile(string fileName, BPlusTree& bpTree) {
 
     cout << "Total de entradas procesadas: " << count << endl;
 }
+void BPlusTree::updateMetadata(Node *root, string key, string block, string offset) {
+    auto [leaf, pos] = searchNode(root, key);
+    leaf->rutas[pos] = {block, offset};
+}

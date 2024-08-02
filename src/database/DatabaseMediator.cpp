@@ -67,16 +67,24 @@ BPlusTree & DatabaseMediator::getOrCreateBPTree(string relation) {
 // Erick Malcoaccha
 string DatabaseMediator::getBlockFromBPtreeForInsert(string key, string relation, bool space) {
   BPlusTree &bptree = getOrCreateBPTree(relation);
-  if((bptree.getRoot()->parent == nullptr && bptree.getRoot()->getNumKeys() == 0) || !space){ 
+  string getBlock;
+  if((bptree.getRoot()->parent == nullptr && bptree.getRoot()->getNumKeys() == 0)){ 
     diskManager.fillMapOfRelation(relation); 
-    string getBlock = diskManager.getBlockToTree(relation);
+    getBlock = diskManager.getBlockToTree(relation);
     bptree.set(key, {getBlock, "0"});
     return getBlock;
   }
-  pair<string,string> getBlock = bptree.searchPolicy(bptree.getRoot(), key);
-  bptree.set(key, {getBlock.first, "0"});
+  else if(!space){
+    diskManager.fillMapOfRelation(relation); 
+    getBlock = diskManager.getBlockToTree(relation);
+    bptree.updateMetadata(bptree.getRoot(), key, getBlock, "0");
+    return getBlock;
+  }
+  pair<string,string> getBlockPair = bptree.searchPolicy(bptree.getRoot(), key);
+  getBlock = getBlockPair.first;
+  bptree.set(key, {getBlock, "0"});
 
-  return getBlock.first;
+  return getBlockPair.first;
   
 }
 
@@ -303,7 +311,9 @@ void DatabaseMediator::adminBplusTree() {
   cout << "ingresa el nombre de la relacion" << endl;
   string nameRelation; cin >> nameRelation;
   bPlusTrees[nameRelation].printTree();
-
+  bPlusTrees[nameRelation].exportToDot("tree.dot"); 
+  auto data = bPlusTrees[nameRelation].search("067");
+  cout << "Bloque -> " << data.first << '\n' <<  " Posicion -> " << data.second << endl;
   /*BPlusTree tree(3);
 
   // Insert example data
