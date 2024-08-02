@@ -1,7 +1,7 @@
 #include "storage/index/BPlusTree.h"
 
 BPlusTree::BPlusTree(int _maxCapacity) {
-    root = new Node(nullptr, true, nullptr, nullptr);
+    root = new Node(nullptr, true);
     maxCapacity = _maxCapacity;
     minCapacity = maxCapacity / 2;
     depth = 0;
@@ -39,9 +39,7 @@ void BPlusTree::exportToDot(const string& filename) const {
 
     outFile << "digraph BPlusTree {\n";
     outFile << "  node [shape=record];\n";
-
     writeNode(root, outFile);
-
     outFile << "}\n";
     outFile.close();
 }
@@ -66,13 +64,13 @@ void BPlusTree::insert(tuple<string, Node*, Node*> result) {
     Node* parent = right->parent;
 
     if (parent == nullptr) {
-        left->parent = right->parent = root = new Node(nullptr, false, nullptr, nullptr);
+        left->parent = right->parent = root = new Node(nullptr, false);
         depth += 1;
         root->keys = {key};
         root->children = {left, right};
         return;
     }
-    parent->setChild(key, {left, right});
+    parent->setChild(key, left, right);
     if (parent->keys.size() > maxCapacity) insert(parent->splitInternal());
 }
 
@@ -123,161 +121,144 @@ void BPlusTree::borrowKeyFromRightLeaf(Node* node, Node* next) {
     node->rutas.push_back(next->rutas.front());
     next->keys.erase(next->keys.begin());
     next->rutas.erase(next->rutas.begin());
+    int myPositionInParent = node->parent->indexOfChild(node->keys.front());
+    node->parent->keys[myPositionInParent] = next->keys.front();
 }
 
 void BPlusTree::borrowKeyFromLeftLeaf(Node* node, Node* prev) {
     node->keys.insert(node->keys.begin(), prev->keys.back());
     node->rutas.insert(node->rutas.begin(), prev->rutas.back());
-    prev->keys.pop_back();
-    prev->rutas.pop_back();
+    prev->keys.erase(prev->keys.end() - 1);
+    prev->rutas.erase(prev->rutas.end() - 1);
+    int myPositionInParent = node->parent->indexOfChild(node->keys.front());
+    node->parent->keys[myPositionInParent - 1] = node->keys.front();
 }
 
-tuple<string, Node*> BPlusTree::mergeInternal(int myPositionInParent, Node* node, Node* next) {
+void BPlusTree::mergeWithRightInternal(int myPositionInParent, Node* node, Node* next) {
     node->keys.push_back(node->parent->keys[myPositionInParent]);
     node->keys.insert(node->keys.end(), next->keys.begin(), next->keys.end());
     node->children.insert(node->children.end(), next->children.begin(), next->children.end());
     for (Node* child : node->children) {
         child->parent = node;
     }
-    return make_tuple(node->keys.back(), node);
+    node->parent->keys.erase(node->parent->keys.begin() + myPositionInParent);
+    node->parent->children.erase(node->parent->children.begin() + myPositionInParent + 1);
+    delete next;
+    if (node->parent->keys.empty()) {
+        if (node->parent == root) {
+            root = node;
+            node->parent = nullptr;
+            depth--;
+        } else {
+            merge(node->parent);
+        }
+    }
 }
 
-tuple<string, Node*> BPlusTree::mergeLeaf(Node* node, Node* next) {
+void BPlusTree::mergeWithRightLeaf(Node* node, Node* next) {
     node->keys.insert(node->keys.end(), next->keys.begin(), next->keys.end());
     node->rutas.insert(node->rutas.end(), next->rutas.begin(), next->rutas.end());
-    return make_tuple(node->keys.back(), node);
+    node->next = next->next;
+    if (next->next) next->next->prev = node;
+    int myPositionInParent = node->parent->indexOfChild(node->keys.front());
+    node->parent->keys.erase(node->parent->keys.begin() + myPositionInParent);
+    node->parent->children.erase(node->parent->children.begin() + myPositionInParent + 1);
+    delete next;
+    if (node->parent->keys.empty()) {
+        if (node->parent == root) {
+            root = node;
+            node->parent = nullptr;
+            depth--;
+        } else {
+            merge(node->parent);
+        }
+    }
 }
 
-void BPlusTree::search(Node* node, const string& key, pair<string, string>& result) {
-    if (node == nullptr) return;
+void BPlusTree::merge(Node* node) {
+    if (!node->parent) return;
 
-    int index = node->indexOfKey(key);
+    int myPositionInParent = node->parent->indexOfChild(node->keys.front());
+    Node* prev = (myPositionInParent > 0) ? node->parent->children[myPositionInParent - 1] : nullptr;
+    Node* next = (myPositionInParent < node->parent->children.size() - 1) ? node->parent->children[myPositionInParent + 1] : nullptr;
+
     if (node->isLeaf) {
-        if (index != -1) {
-            result = node->rutas[index];
+        if (next && next->keys.size() > minCapacity) {
+            borrowKeyFromRightLeaf(node, next);
+        } else if (prev && prev->keys.size() > minCapacity) {
+            borrowKeyFromLeftLeaf(node, prev);
+        } else if (next) {
+            mergeWithRightLeaf(node, next);
+        } else if (prev) {
+            mergeWithRightLeaf(prev, node);
         }
-        return;
-    }
-
-    if (index == -1) index = node->indexOfChild(key);
-    search(node->children[index], key, result);
-}
-
-pair<string, string> BPlusTree::search(const string& key) {
-    pair<string, string> result = {"NullSearch", "NullSearch"};
-    Node* leaf = findLeaf(key);
-    search(leaf, key, result);
-    return result;
-}
-
-void BPlusTree::printTreeByLevels() const {
-    if (!root) {
-        cout << "Tree is empty!" << endl;
-        return;
-    }
-
-    queue<Node*> q;
-    q.push(root);
-
-    while (!q.empty()) {
-        int levelSize = q.size();
-        for (int i = 0; i < levelSize; ++i) {
-            Node* node = q.front();
-            q.pop();
-            node->printNode();
-            for (Node* child : node->children) {
-                if (child) q.push(child);
-            }
+    } else {
+        if (next && next->keys.size() > minCapacity) {
+            borrowKeyFromRightInternal(myPositionInParent, node, next);
+        } else if (prev && prev->keys.size() > minCapacity) {
+            borrowKeyFromLeftInternal(myPositionInParent, node, prev);
+        } else if (next) {
+            mergeWithRightInternal(myPositionInParent, node, next);
+        } else if (prev) {
+            mergeWithRightInternal(myPositionInParent - 1, prev, node);
         }
-        cout << "----------" << endl;
     }
 }
 
 void BPlusTree::remove(const string& key) {
+    Node* node = findLeaf(key);
+    removeFromLeaf(key, node);
+    if (node->keys.size() < minCapacity) merge(node);
+}
+
+Node * BPlusTree::getRoot() {
+    return root;
+}
+
+void BPlusTree::printTree() {
+    if (!root) {
+        cout << "The tree is empty." << endl;
+        return;
+    }
+
+    queue<Node*> nodesQueue;
+    nodesQueue.push(root);
+
+    while (!nodesQueue.empty()) {
+        int levelSize = nodesQueue.size();
+
+        while (levelSize > 0) {
+            Node* node = nodesQueue.front();
+            nodesQueue.pop();
+
+            cout << "[";
+            for (const auto& key : node->keys) {
+                cout << key << " ";
+            }
+            cout << "] ";
+
+            for (Node* child : node->children) {
+                if (child) {
+                    nodesQueue.push(child);
+                }
+            }
+
+            levelSize--;
+        }
+        cout << endl;
+    }
+}
+
+pair<string, string> BPlusTree::search(const string &key) {
     Node* leaf = findLeaf(key);
-    if (leaf == nullptr) {
-        cout << "Key " << key << " not found! Exiting ..." << endl;
-        return;
+    int index = leaf->indexOfKey(key);
+    if (index != -1) {
+        return leaf->rutas[index];
     }
-
-    removeFromLeaf(key, leaf);
-
-    if (leaf->keys.size() < minCapacity) {
-        handleUnderflow(leaf);
-    }
+    return {"NullSearch", "NullSearch"};
 }
 
-void BPlusTree::handleUnderflow(Node* node) {
-    if (node == root) {
-        if (node->isLeaf && node->keys.empty()) {
-            delete root;
-            root = nullptr;
-        }
-        return;
-    }
-
-    Node* parent = node->parent;
-    int positionInParent = parent->indexOfChild(node->keys.front());
-
-    if (node->isLeaf) {
-        if (positionInParent > 0) {
-            Node* leftSibling = parent->children[positionInParent - 1];
-            if (leftSibling->keys.size() > minCapacity) {
-                borrowKeyFromLeftLeaf(node, leftSibling);
-                return;
-            }
-        }
-
-        if (positionInParent < parent->keys.size()) {
-            Node* rightSibling = parent->children[positionInParent + 1];
-            if (rightSibling->keys.size() > minCapacity) {
-                borrowKeyFromRightLeaf(node, rightSibling);
-                return;
-            }
-        }
-
-        if (positionInParent > 0) {
-            Node* leftSibling = parent->children[positionInParent - 1];
-            mergeLeaf(leftSibling, node);
-            handleUnderflow(leftSibling);
-        } else {
-            Node* rightSibling = parent->children[positionInParent + 1];
-            mergeLeaf(node, rightSibling);
-            handleUnderflow(node);
-        }
-    } else {
-        if (positionInParent > 0) {
-            Node* leftSibling = parent->children[positionInParent - 1];
-            if (leftSibling->keys.size() > minCapacity) {
-                borrowKeyFromLeftInternal(positionInParent, node, leftSibling);
-                return;
-            }
-        }
-
-        if (positionInParent < parent->keys.size()) {
-            Node* rightSibling = parent->children[positionInParent + 1];
-            if (rightSibling->keys.size() > minCapacity) {
-                borrowKeyFromRightInternal(positionInParent, node, rightSibling);
-                return;
-            }
-        }
-
-        if (positionInParent > 0) {
-            Node* leftSibling = parent->children[positionInParent - 1];
-            string newParentKey;
-            tie(newParentKey, leftSibling) = mergeInternal(positionInParent - 1, leftSibling, node);
-            parent->keys[positionInParent - 1] = newParentKey;
-            handleUnderflow(leftSibling);
-        } else {
-            Node* rightSibling = parent->children[positionInParent + 1];
-            string newParentKey;
-            tie(newParentKey, rightSibling) = mergeInternal(positionInParent, node, rightSibling);
-            parent->keys[positionInParent] = newParentKey;
-            handleUnderflow(rightSibling);
-        }
-    }
-}
-
+// Search de Ramos
 pair<Node*, int> BPlusTree::searchNode(Node* root, string key) {
     Node* current = this -> root;
     while (!current->isLeaf) {
@@ -299,7 +280,7 @@ pair<Node*, int> BPlusTree::searchNode(Node* root, string key) {
     return {current, pos};
 }
 
-pair<string, string> BPlusTree::searchPolitica(Node* root, string key) {
+pair<string, string> BPlusTree::searchPolicy(Node* root, string key) {
     auto [leaf, pos] = searchNode(root, key);
     // Si encontramos la clave exacta
     pair<string,string> result = search(key);
@@ -308,13 +289,32 @@ pair<string, string> BPlusTree::searchPolitica(Node* root, string key) {
     }
     if (pos != 0) {
         pos --;
-    } 
+    }
     auto getData = leaf -> getMetadata(pos);
-    string path = getData.first; // Ajusta esto según tu implementación
-    string offset = getData.second; // Ajusta esto según tu implementación
+    string path = getData.first;
+    string offset = getData.second;
     return {path, offset};
 }
 
-Node* BPlusTree::getRoot() const {
-    return root;
+void processFile(string fileName, BPlusTree& bpTree) {
+    ifstream file(fileName);
+
+    if (!file.is_open()) {
+        cout << "Error: No se pudo abrir el archivo " << fileName << endl;
+        return;
+    }
+
+    string line;
+    int count = 0;
+    while (getline(file, line)) {
+        istringstream ss(line);
+        string palabra;
+        string ruta;
+        getline(ss, palabra, ',');
+        getline(ss, ruta, ',');
+        bpTree.set(palabra, {palabra, ruta});
+        count++;
+    }
+
+    cout << "Total de entradas procesadas: " << count << endl;
 }
