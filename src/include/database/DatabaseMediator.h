@@ -4,6 +4,7 @@
 #include "buffer/BufferManager.h"
 #include "storage/Disk_manager.h"
 #include "storage/index/BPlusTree.h"
+#include "database/Query.h"
 #include <iostream>
 #include <string>
 
@@ -16,10 +17,11 @@ class DatabaseMediator {
   BufferManager bfManager;
   Disk_manager diskManager;
   map<string,BPlusTree> bPlusTrees;
+  map<string,int> sizeRecord;
 
   BPlusTree& getOrCreateBPTree(string relation);
   string getBlockFromBPtreeForInsert(string key, string relation, bool space = true);
-  vector<string> getBlocksForRead(string key, string relation);
+  vector<string> getBlocksForRead(string key, string relation, int condition);
   void fillBPtree(string relation);
   void loadBPtree(string relation);
   void saveBPtree(string relation);
@@ -36,6 +38,7 @@ public:
   void saveDataInRAM();
   void loadDataInFiles();
   void adminBplusTree();
+  void querys();
 
   void medSaveBlocksInSectors(string relation);
 };

@@ -12,16 +12,14 @@ int Query::menuOptions(){
 
 void Query::selectAllColumns(string &tableName){
   cout << "SELECT * FROM " << tableName << endl;
-
+  
 }
 
-void Query::searchKey(string key, string records, int desplazamiento, pair<vector<string>,pair<int,int>> colAndPos){
-  int setOptionRange = selectColumna(colAndPos.first);
-  int condition = selectOptionRange();
-  int inicio = colAndPos.second.first;
-  int fin = colAndPos.second.second;
+void Query::searchKey(string key, string records, int desplazamiento, pair<int,int> colAndPos){
+  int inicio = colAndPos.first;
+  int fin = colAndPos.second;
   int length = fin - inicio + 1; 
-  int current = desplazamiento;
+  int current = 0;
   int* pointerCurrent = &current;
   optionsSearchs(1,desplazamiento,records,inicio,length,pointerCurrent,key);
 }
@@ -64,11 +62,22 @@ void Query::selectForRange(string key, string records, int desplazamiento, pair<
   }
 }
 
+string Query::removeSpaces(string input) {
+    std::string result;
+    for (char c : input) {
+        if (c != '\n') {
+            result += c;
+        }
+    }
+    return result;
+}
 void Query::optionsSearchs(int option, int desplazamiento, string records,int inicio, int length, int* current, string key){
-  for(int i = 0; i < records.size(); i+= desplazamiento){
-    string recordCut = records.substr(*current - 1,desplazamiento); 
+  string recordsSinNewLine = removeSpaces(records);
+  int longitud = recordsSinNewLine.size();
+  for(int i = 0; i < longitud; i+= desplazamiento){
+    string recordCut = recordsSinNewLine.substr(*current,desplazamiento); 
     string keyCurrent = recordCut.substr(inicio,length);
-    *current += desplazamiento;
+    *current += desplazamiento + 1;
     if(option == 1){
       if(key == keyCurrent){
         cout << recordCut << endl;

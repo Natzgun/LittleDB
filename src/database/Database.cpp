@@ -367,3 +367,7 @@ void Database::adminBtree() {
 void Database::saveSectors(string relation) {
   dbMediator.medSaveBlocksInSectors(relation);
 }
+
+void Database::querys() {
+  dbMediator.querys();
+}

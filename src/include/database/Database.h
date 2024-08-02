@@ -46,5 +46,7 @@ public:
   void adminBtree();
 
   void saveSectors(string relation);
+
+  void querys();
 };
 #endif //DATABASE_H

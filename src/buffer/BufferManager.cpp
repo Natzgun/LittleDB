@@ -330,3 +330,14 @@ string BufferManager::getPathName(int pageID) {
   Page &page = bpool.getFrame(frameId).getPage();
   return page.getName();
 }
+
+string BufferManager::getContentPage(int pageID) {
+  if (!bpool.isPageLoaded(pageID)) {
+    cout << "La página con ID " << pageID
+         << " no está cargada en el BufferPool.\n";
+    return "";
+  }
+  int frameId = bpool.getFrameId(pageID);
+  Page &page = bpool.getFrame(frameId).getPage();
+  return page.getContent();
+}

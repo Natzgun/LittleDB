@@ -107,6 +107,9 @@ void Console::execCommand(string &command) {
     cin >> relation;
     cout << "Distribuyendo bloques en sectores..." << endl;
     db.saveSectors(relation);
+  }
+  else if(command.find("querys") == 0){
+    db.querys();
   } else {
     cout << "Comando no reconocido." << endl;
   }
