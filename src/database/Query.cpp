@@ -10,8 +10,13 @@ int Query::menuOptions(){
   return choice;
 }
 
-void Query::selectAllColumns(string &tableName){
-  cout << "SELECT * FROM " << tableName << endl;
+void Query::selectAllColumns(string records, int desplazamiento, pair<int,int> colAndPos){
+  int inicio = colAndPos.first;
+  int fin = colAndPos.second;
+  int length = fin - inicio + 1; 
+  int current = 0;
+  int* pointerCurrent = &current;
+  optionsSearchs(1,desplazamiento,records,inicio,length,pointerCurrent);
   
 }
 
@@ -21,7 +26,7 @@ void Query::searchKey(string key, string records, int desplazamiento, pair<int,i
   int length = fin - inicio + 1; 
   int current = 0;
   int* pointerCurrent = &current;
-  optionsSearchs(1,desplazamiento,records,inicio,length,pointerCurrent,key);
+  optionsSearchs(2,desplazamiento,records,inicio,length,pointerCurrent,key);
 }
 
 
@@ -36,7 +41,7 @@ int Query:: selectColumna(vector<string> columns){
 }
 
 int Query::selectOptionRange(){
-  cout << "Enter the condition: ";
+  cout << "Enter the condition: \n";
   cout << "1. >=" << endl;
   cout << "2. <=" << endl;
   int condition; cin >> condition;
@@ -44,8 +49,11 @@ int Query::selectOptionRange(){
 }
 
 
-void Query::selectForRange(string key, string records, int desplazamiento, pair<vector<string>,pair<int,int>> colAndPos){
-  int setOptionRange = selectColumna(colAndPos.first);
+void Query::selectForRange(string key, string records, int desplazamiento, pair<vector<string>,pair<int,int>> colAndPos, bool existKey){
+  static int setOptionRange;
+  if(!existKey){
+    setOptionRange = selectColumna(colAndPos.first);
+  }
   int condition = selectOptionRange();
   int inicio = colAndPos.second.first;
   int fin = colAndPos.second.second;
@@ -53,12 +61,10 @@ void Query::selectForRange(string key, string records, int desplazamiento, pair<
   int current = desplazamiento;
   int* pointerCurrent = &current;
   if(condition == 1){
-    cout << "SELECT * FROM " << records << " WHERE " << colAndPos.first[setOptionRange - 1] << " <= " << key << endl;
-    optionsSearchs(2,desplazamiento,records,inicio,length,pointerCurrent,key);
+    optionsSearchs(3,desplazamiento,records,inicio,length,pointerCurrent,key);
 
   }else{
-    cout << "SELECT * FROM " << records << " WHERE " << colAndPos.first[setOptionRange - 1] << " >= " << key << endl;
-    optionsSearchs(3,desplazamiento,records,inicio,length,pointerCurrent,key); 
+    optionsSearchs(4,desplazamiento,records,inicio,length,pointerCurrent,key); 
   }
 }
 
@@ -79,11 +85,9 @@ void Query::optionsSearchs(int option, int desplazamiento, string records,int in
     string keyCurrent = recordCut.substr(inicio,length);
     *current += desplazamiento + 1;
     if(option == 1){
-      if(key == keyCurrent){
-        cout << recordCut << endl;
-      }
+      cout << recordCut << endl;
     }else if(option == 2){
-      if(key >= keyCurrent){
+      if(key == keyCurrent){
         cout << recordCut << endl;
       }
     }

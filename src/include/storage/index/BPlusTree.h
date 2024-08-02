@@ -38,6 +38,7 @@ public:
     void mergeWithRightLeaf(Node* node, Node* next);
     void merge(Node* node);
     void remove(const string& key);
+    Node* getNextLeaf(Node* currentLeaf);
 
     Node* getRoot();
     void printTree();
@@ -46,6 +47,8 @@ public:
     pair<Node *, int> searchNode(Node *root, string key);
     pair<string, string> searchPolicy(Node *root, string key);
     void updateMetadata(Node *root, string key, string block, string offset);
+    vector<std::pair<std::string, std::string>> collectMetadata();
+    vector<pair<string, string>> collectMetadataMoreFromKey(const std::string& key);
 };
 
 void processFile(string fileName, BPlusTree& bpTree);

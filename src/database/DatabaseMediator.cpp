@@ -156,7 +156,11 @@ pair<vector<string>, vector<pair<int, int>>> DatabaseMediator::parseRelation(con
 vector<string> DatabaseMediator::getBlocksForRead(string key, string relation, int condition) {
   vector<string> blocks;
   if(condition == 1){
-    return {};
+    vector<pair<string,string>> metadata = bPlusTrees[relation].collectMetadata();
+    for(int i = 0; i < metadata.size(); i++){
+      blocks.push_back(metadata[i].first);
+    }
+    return blocks;
   }
   else if(condition == 2){
     pair<string,string> metaData = bPlusTrees[relation].searchPolicy(bPlusTrees[relation].getRoot(), key);
@@ -164,8 +168,11 @@ vector<string> DatabaseMediator::getBlocksForRead(string key, string relation, i
     return blocks;
   }
   else if(condition == 3){
-     
-    return {};
+    vector<pair<string,string>> metadata = bPlusTrees[relation].collectMetadataMoreFromKey(key);
+    for(int i = 0; i < metadata.size(); i ++ ){
+      blocks.push_back(metadata[i].first);
+    }
+    return blocks;
   }
   else{
     return {};
@@ -385,50 +392,68 @@ void DatabaseMediator::medSaveBlocksInSectors(string relation) {
 }
 
 void DatabaseMediator::querys() {
-  while (true) {
-    int choice = Query::menuOptions();
-    if (choice == 4) {
-      break;
-    }
-    string tableName;
-    cout << "Enter the table name: ";
-    cin >> tableName;
-    if(bPlusTrees[tableName].getRoot() == nullptr){
-      cout << "No se creo la tabla o no existe la relacion " << tableName << '\n';
-      continue;
-    }
-    switch (choice) {
-      case 1:
-        Query::selectAllColumns(tableName);
-        break;
-      case 2: {
+    while (true) {
+        int choice = Query::menuOptions();
+        if (choice == 4) {
+            break;
+        }
+        string tableName;
+        cout << "Enter the table name: ";
+        cin >> tableName;
+        if (bPlusTrees[tableName].getRoot() == nullptr) {
+            cout << "No se creo la tabla o no existe la relacion " << tableName << '\n';
+            continue;
+        }
         string key;
         string linea = "";
-        findRelationInFile(linea,tableName);
+        findRelationInFile(linea, tableName);
         pair<vector<string>, vector<pair<int, int>>> colAndPos = parseRelation(linea);
         int columnas = Query::selectColumna(colAndPos.first);
         cout << "Enter the key: ";
         cin >> key;
-        vector<string> block = getBlocksForRead(key, tableName, 2);
-        for(int i = 0; i < block.size(); i++){
-          int page = convertPathToPage(block[i], 'R');
-          string content = bfManager.getContentPage(page); 
-          int desplazamiento = sizeRecord[tableName];
-          pair<int,int> iniFin = colAndPos.second[columnas - 1]; 
-          Query::searchKey(key,content ,desplazamiento, iniFin);
+        static int columna = 0;
+        static bool first = true;
+        // Declara el vector 'block' aquí
+        vector<string> block;
+
+        switch (choice) {
+            case 1:
+                block = getBlocksForRead("", tableName, 1); 
+                for (int i = 0; i < block.size(); i++) {
+                    int page = convertPathToPage(block[i], 'R');
+                    string content = bfManager.getContentPage(page); 
+                    int desplazamiento = sizeRecord[tableName];
+                    pair<int, int> iniFin = colAndPos.second[columnas - 1]; 
+                    Query::selectAllColumns(content, desplazamiento, iniFin);
+                }
+                break;
+            case 2: 
+                block = getBlocksForRead(key, tableName, 2);
+                for (int i = 0; i < block.size(); i++) {
+                    int page = convertPathToPage(block[i], 'R');
+                    string content = bfManager.getContentPage(page); 
+                    int desplazamiento = sizeRecord[tableName];
+                    pair<int, int> iniFin = colAndPos.second[columnas - 1]; 
+                    Query::searchKey(key, content, desplazamiento, iniFin);
+                }
+                break;
+            case 3:
+                block = getBlocksForRead(key, tableName, 3);
+                for(int i = 0; i < block.size(); i++){
+                    int page = convertPathToPage(block[i], 'R');
+                    string content = bfManager.getContentPage(page);
+                    int desplazamiento = sizeRecord[tableName];
+                    pair<int, int> iniFin = colAndPos.second[columnas - 1];
+                    if(first){
+                      Query::selectForRange(key, content, desplazamiento, {colAndPos.first, iniFin});
+                      first = false;
+                    }
+                    Query::selectForRange(key, content, desplazamiento, {colAndPos.first, iniFin}, true);
+
+                }
+            default:
+                cout << "Invalid option. Try again." << endl;
+                break;
         }
-        break;
-      }
-      /*case 3: {
-        string key;
-        cout << "Enter the key: ";
-        cin >> key;
-        query.selectForRange(key, tableName);
-        break;
-      }*/
-      default:
-        cout << "Invalid option. Try again." << endl;
-        break;
     }
-  }
 }
