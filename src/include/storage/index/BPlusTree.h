@@ -24,6 +24,7 @@ public:
 
     BPlusTree(int _maxCapacity = 4);
 
+    void saveIndexToFile(const string filename);
     void exportToDot(const string& filename) const;
     Node* findLeaf(const string& key);
     void set(const string& key, const pair<string, string>& ruta);

@@ -7,6 +7,37 @@ BPlusTree::BPlusTree(int _maxCapacity) {
     depth = 0;
 }
 
+void BPlusTree::saveIndexToFile(const string filename) {
+    string pathIndex = "../../data/usr/index/" + filename + ".txt";
+    ofstream outFile(pathIndex);
+    if (!outFile) {
+        cerr << "Btree Error: Unable to open file " << filename << endl;
+        return;
+    }
+
+    queue<Node*> nodesQueue;
+    nodesQueue.push(root);
+
+    while (!nodesQueue.empty()) {
+        Node* node = nodesQueue.front();
+        nodesQueue.pop();
+
+        if (node->isLeaf) {
+            for (size_t i = 0; i < node->keys.size(); ++i) {
+                outFile << node->keys[i] << "\t" << node->rutas[i].first << "\t" << node->rutas[i].second << "\n";
+            }
+        }
+
+        for (Node* child : node->children) {
+            if (child) {
+                nodesQueue.push(child);
+            }
+        }
+    }
+
+    outFile.close();
+}
+
 void BPlusTree::writeNode(Node* node, ofstream& outFile) const {
     if (node == nullptr) return;
 

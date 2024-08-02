@@ -30,6 +30,7 @@ class DatabaseMediator {
 
 public:
   DatabaseMediator();
+  void loadIndex();
   void addRecord(string& relation, string record, bool bucle = false, bool end = false);
   void adminRam();
   void selectDiskStructureMediator(bool defaultDisk);

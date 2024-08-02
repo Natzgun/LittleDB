@@ -5,6 +5,7 @@ build
 .cache
 data/usr/db/*.txt
 data/usr/db/*.csv
+data/usr/index/*.txt
 data/root_directory/*.csv
 data/root_directory
 data/heapfiles

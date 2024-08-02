@@ -175,6 +175,34 @@ void DatabaseMediator::fillBPtree(string relation) {
 DatabaseMediator::DatabaseMediator() : bfManager(4) {
 }
 
+void DatabaseMediator::loadIndex() {
+  std::string indexPath = "../../data/usr/index";
+  for (const auto& entry : fs::directory_iterator(indexPath)) {
+    if (entry.is_regular_file()) {
+      std::string filePath = entry.path().string();
+      std::string relation = entry.path().stem().string(); // Use the file name without extension as the relation name
+
+      BPlusTree& btree = getOrCreateBPTree(relation);
+
+      std::ifstream file(filePath);
+      if (!file.is_open()) {
+        std::cerr << "Error: Unable to open file " << filePath << std::endl;
+        continue;
+      }
+
+      std::string line;
+      while (std::getline(file, line)) {
+        std::istringstream ss(line);
+        std::string key, ruta, desplazamiento;
+        if (std::getline(ss, key, '\t') && std::getline(ss, ruta, '\t') && std::getline(ss, desplazamiento, '\t')) {
+          btree.set(key, {ruta, desplazamiento});
+        }
+      }
+    }
+  }
+  cout << "Indices cargados" << endl;
+}
+
 // Erik Ramos Quispe
 void DatabaseMediator::addRecord(string &relation, string record, bool bucle, bool end) {
   pair<bool,int> result;
@@ -300,10 +328,16 @@ void DatabaseMediator::saveDataInRAM() {
   diskManager.saveFreeBlocks();
   diskManager.saveDiskAttributesToFile();
   diskManager.saveMapOfRelationHF();
+
+  for (auto& [relation, btree] : bPlusTrees) {
+    btree.saveIndexToFile(relation);
+  }
 }
 
 void DatabaseMediator::loadDataInFiles() {
   diskManager.loadDiskAttributesFromFile();
+
+  loadIndex();
 }
 
 void DatabaseMediator::adminBplusTree() {
