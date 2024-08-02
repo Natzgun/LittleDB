@@ -72,8 +72,10 @@ string DatabaseMediator::getBlockFromBPtreeForInsert(string key, string relation
     string getBlock = diskManager.getBlockToTree(relation);
     bptree.set(key, {getBlock, "0"});
     return getBlock;
-  } 
+  }
   pair<string,string> getBlock = bptree.searchPolicy(bptree.getRoot(), key);
+  bptree.set(key, {getBlock.first, "0"});
+
   return getBlock.first;
   
 }
@@ -300,10 +302,8 @@ void DatabaseMediator::adminBplusTree() {
   
   cout << "ingresa el nombre de la relacion" << endl;
   string nameRelation; cin >> nameRelation;
-  //bPlusTrees[nameRelation].printTreeByLevels();
-  BPlusTree &tree = getOrCreateBPTree(nameRelation);
   bPlusTrees[nameRelation].printTree();
-  tree.exportToDot(nameRelation+"tree.dot");
+
   /*BPlusTree tree(3);
 
   // Insert example data
