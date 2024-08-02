@@ -132,7 +132,7 @@ pair<vector<string>, vector<pair<int, int>>> DatabaseMediator::parseRelation(con
     int currentPosition = 0;
     for (size_t i = 1; i < tokens.size(); i += 3) {
         if (i + 2 >= tokens.size()) {
-            throw invalid_argument("Cadena de entrada inválida: falta información de columna");
+            throw invalid_argument("Cadena de entrada inválida: falta informacion de columna");
         }
         columnNames.push_back(tokens[i]);
         int size = stoi(tokens[i + 2]);

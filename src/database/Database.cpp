@@ -1,5 +1,4 @@
 #include "database/Database.h"
-#include "database/Query.h"
 
 #include <algorithm>
 #include <fstream>
@@ -288,7 +287,7 @@ void Database::insertInSchema(string &command) {
 }
 
 
-void Database::selectTable(string &tableName, string &columns, string &condition) {
+/*void Database::selectTable(string &tableName, string &columns, string &condition) {
   if (schemaExists(tableName) == "notFound")
     return;
 
@@ -309,6 +308,7 @@ void Database::selectTable(string &tableName, string &columns, string &condition
 
   cout << "Select de la tabla '" << tableName << "'." << endl;
 }
+*/
 
 void Database::readCSV(string &command) {
   string tablename = command.substr(8);
