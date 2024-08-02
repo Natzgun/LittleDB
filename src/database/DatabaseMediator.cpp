@@ -174,10 +174,13 @@ vector<string> DatabaseMediator::getBlocksForRead(string key, string relation, i
     }
     return blocks;
   }
-  else{
-    return {};
+  else if(condition == 4){
+    vector<pair<string,string>> metadata = bPlusTrees[relation].collectMetadataUpToKey(key);
+    for(int i = 0; i < metadata.size(); i ++ ){
+      blocks.push_back(metadata[i].first);
+    }
+    return blocks;
   }
-
   return {};
 }
 
@@ -394,7 +397,7 @@ void DatabaseMediator::medSaveBlocksInSectors(string relation) {
 void DatabaseMediator::querys() {
     while (true) {
         int choice = Query::menuOptions();
-        if (choice == 4) {
+        if (choice == 5) {
             break;
         }
         string tableName;
@@ -413,7 +416,6 @@ void DatabaseMediator::querys() {
         cin >> key;
         static int columna = 0;
         static bool first = true;
-        // Declara el vector 'block' aquí
         vector<string> block;
 
         switch (choice) {
@@ -444,13 +446,20 @@ void DatabaseMediator::querys() {
                     string content = bfManager.getContentPage(page);
                     int desplazamiento = sizeRecord[tableName];
                     pair<int, int> iniFin = colAndPos.second[columnas - 1];
-                    if(first){
-                      Query::selectForRange(key, content, desplazamiento, {colAndPos.first, iniFin});
-                      first = false;
-                    }
-                    Query::selectForRange(key, content, desplazamiento, {colAndPos.first, iniFin}, true);
+                    Query::selectForRangeMayor(key, content, desplazamiento, {colAndPos.first, iniFin}); 
 
                 }
+                break;
+            case 4:
+                block = getBlocksForRead(key, tableName, 4);
+                for(int i = 0; i < block.size(); i++){
+                    int page = convertPathToPage(block[i], 'R');
+                    string content = bfManager.getContentPage(page);
+                    int desplazamiento = sizeRecord[tableName];
+                    pair<int, int> iniFin = colAndPos.second[columnas - 1];
+                    Query::selectForRangeMenor(key, content, desplazamiento, {colAndPos.first, iniFin}); 
+                }
+                break;
             default:
                 cout << "Invalid option. Try again." << endl;
                 break;

@@ -372,3 +372,35 @@ vector<pair<string, string>> BPlusTree::collectMetadataMoreFromKey(const std::st
 
     return metadataVector;
 }
+
+vector<pair<string, string>> BPlusTree::collectMetadataUpToKey(const std::string& key) {
+    std::vector<std::pair<std::string, std::string>> metadataVector;
+    std::unordered_set<std::string> seenBlocks;
+    Node* current = root;
+
+    // Navega hasta la hoja más a la izquierda
+    while (current && !current->isLeaf) {
+        current = current->children.front();
+    }
+
+    // Recorre todas las hojas y detén la recolección cuando la llave actual sea mayor que key
+    while (current) {
+        for (size_t i = 0; i < current->rutas.size(); ++i) {
+            const std::string& currentKey = current->keys[i];
+            const auto& metadata = current->rutas[i];
+            const std::string& block = metadata.first;
+
+            if (currentKey > key) {
+                return metadataVector;
+            }
+
+            if (seenBlocks.find(block) == seenBlocks.end()) {
+                metadataVector.push_back(metadata);
+                seenBlocks.insert(block);
+            }
+        }
+        current = current->next;
+    }
+
+    return metadataVector;
+}

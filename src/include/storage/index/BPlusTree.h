@@ -49,6 +49,7 @@ public:
     void updateMetadata(Node *root, string key, string block, string offset);
     vector<std::pair<std::string, std::string>> collectMetadata();
     vector<pair<string, string>> collectMetadataMoreFromKey(const std::string& key);
+    vector<pair<string, string>> collectMetadataUpToKey(const std::string& key);
 };
 
 void processFile(string fileName, BPlusTree& bpTree);

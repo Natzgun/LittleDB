@@ -21,6 +21,7 @@ public:
   static int selectOptionRange();
   static pair<int,int> positionOfSearch(pair<int,int> longest);
   static int selectColumna(vector<string> columns);
-  static void selectForRange(string key, string records, int desplazamientom, pair<vector<string>,pair<int,int>> colAndPos, bool existKey = false);
+  static void selectForRangeMayor(string key, string records, int desplazamientom, pair<vector<string>,pair<int,int>> colAndPos);
+  static void selectForRangeMenor(string key, string records, int desplazamiento, pair<vector<string>,pair<int,int>> colAndPos);
 };
 #endif //QUERY_H
