@@ -352,16 +352,18 @@ int BufferPool ::clockPolicy() {
   return posFrame;
 }
 
-void BufferPool ::clock_Replacement(int pageID, string path, bool mode, string content, int capacity, string header) {
+int BufferPool ::clock_Replacement(int pageID, string path, bool mode, string content, int capacity, string header) {
   int posFrame = clockPolicy();
   if (frames[posFrame].getPinCount() > 0) {
     cout << "==============================================\n";
     cout << "Tienes que liberar procesos, todas las paginas estan siendo "
             "utilizadas\n";
+    int pageID = frames[posFrame].getPage().getPageId();
     cout << "Clock Necesita liberar la pagina: "
-         << frames[posFrame].getPage().getPageId() << endl;
+         << pageID << endl;
     cout << "==============================================\n";
     my_clock.decrementHC();
+    return pageID;
   } else {
     freeFrame(posFrame);
     int frameFree = findFreeFrame();
@@ -382,4 +384,14 @@ void BufferPool ::clock_Replacement(int pageID, string path, bool mode, string c
          << frames[frameFree].getPage().getPageId() << endl;
     cout << "==============================================\n";
   }
+  return -1;
+}
+
+string BufferPool ::getPathPage(int pageID) {
+  for (int i = 0; i < frames.size(); i++) {
+    if (frames[i].getPage().getPageId() == pageID) {
+      return frames[i].getPage().getName();
+    }
+  }
+  return "No se encontro la pagina";
 }

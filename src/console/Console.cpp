@@ -13,6 +13,22 @@ void Console::run() {
   int option;
 
   cout << "Welcome BD alpha project MEGATRON" << endl;
+  std::cout << "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠀⠀⠀⠀⠀⠀⠀⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n";
+  std::cout << "⢸⣄⠀⠀⠀⠀⠀⠀⠀⠀⠈⣧⡀⠀⠀⠀⠀⢀⣼⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠂\n";
+  std::cout << "⠀⣿⣧⣀⡀⠀⠀⠀⠀⠀⠀⣿⣷⡀⠀⠀⢀⣾⡟⠀⠀⠀⠀⠀⠀⢀⣀⣴⣿⠀\n";
+  std::cout << "⠀⣿⣿⣿⣿⣿⣷⣶⣤⣤⠀⢸⣿⣿⣿⣿⣿⣿⡇⠀⣠⣤⣶⣶⣿⣿⣿⣿⡟⠀\n";
+  std::cout << "⠀⢹⣿⣿⣤⣈⣉⠛⠛⠿⠆⠸⣿⣷⠀⠀⣾⣿⠀⠸⠿⠟⠛⠋⣉⣁⣿⣿⡇⠀\n";
+  std::cout << "⠀⢸⣿⣿⡟⠛⠿⠿⣷⣶⡄⠀⣿⣿⣇⣸⣿⡟⠀⣤⣴⣶⡾⠿⠟⢻⣿⣿⠁⠀\n";
+  std::cout << "⠀⠘⣿⣿⣿⣷⣶⣤⣤⣀⠁⠀⠻⣿⣿⣿⣿⠇⠀⠉⣁⣠⣤⣴⣶⣾⣿⡿⠀⠀\n";
+  std::cout << "⠀⠀⠈⢿⣿⡿⢿⣿⣿⣿⣿⣷⣄⠈⠻⠟⠁⣠⣾⣿⣿⣿⣿⣿⣿⣿⠟⠁⠀⠀\n";
+  std::cout << "⠀⠀⣧⡀⠻⣿⣄⠈⠉⠛⠛⠿⢿⣷⣄⣴⣾⡿⠿⠟⠛⠉⢉⣴⣿⠋⢠⡎⠀⠀\n";
+  std::cout << "⠀⠀⣿⣷⡄⠘⢿⣷⣄⠀⠀⠀⢠⣿⣿⣿⣧⠀⠀⠀⢀⣴⣿⡟⠁⣰⣿⡇⠀⠀\n";
+  std::cout << "⠀⠀⢻⣿⣿⣦⠈⢻⣿⣷⣄⢀⣿⣿⣿⣿⣿⣧⠀⣰⣿⣿⠏⢀⣾⣿⣿⠇⠀⠀\n";
+  std::cout << "⠀⠀⢸⣿⣿⣿⣷⡀⠙⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁⣠⣿⣿⣿⣿⠀⠀⠀\n";
+  std::cout << "⠀⠀⢸⣿⣿⣿⣿⣿⣄⠈⢿⣿⣿⣿⣿⣿⣿⣿⣿⠟⢀⣴⣿⣿⣿⣿⣿⠀⠀⠀\n";
+  std::cout << "⠀⠀⠘⠿⣿⣿⣿⣿⣿⣧⡀⠻⣿⣿⣿⣿⣿⡿⠃⢠⣾⣿⣿⣿⣿⣿⠏⠀⠀⠀\n";
+  std::cout << "⠀⠀⠀⠀⠀⠉⠙⠻⢿⣿⣷⡄⠘⢿⣿⣿⠟⠀⣴⣿⣿⠿⠟⠋⠁⠀⠀⠀⠀⠀\n";
+  std::cout << "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠛⠦⠈⠻⠋⠀⠞⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n";
 
   while (true) {
     cout << "[LittleDB]host >> ";
@@ -20,10 +36,14 @@ void Console::run() {
     if (command == "Disk") {
       selectDisk();
     }
+    else if(command == "Load"){
+      db.loadDataInFiles();
+    }
     execCommand(command);
 
     if (command == "exit") {
       cout << "Gracias por usar el Sistema." << endl;
+      db.saveDataInRAM();
       break;
     }
   }
@@ -73,13 +93,24 @@ void Console::execCommand(string &command) {
     db.insertInSchema(command);
   } else if (command.find("select") == 0){
     parseSelect(command);
-    db.selectTable(tableName, columns, condition);
+    //db.selectTable(tableName, columns, condition);
     cleanCommands();
   } else if (command.find("ReadCSV") == 0){
     db.readCSV(command);
   } else if (command.find("Ram") == 0) {
     db.viewRam();
-  }else {
+  } else if (command.find("Btree") == 0) {
+    db.adminBtree();
+  } else if (command.find("distribute") == 0) {
+    string relation;
+    cout << "Ingrese el nombre de la relación: ";
+    cin >> relation;
+    cout << "Distribuyendo bloques en sectores..." << endl;
+    db.saveSectors(relation);
+  }
+  else if(command.find("querys") == 0){
+    db.querys();
+  } else {
     cout << "Comando no reconocido." << endl;
   }
 }

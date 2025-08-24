@@ -3,6 +3,8 @@
 
 #include "buffer/BufferManager.h"
 #include "storage/Disk_manager.h"
+#include "storage/index/BPlusTree.h"
+#include "database/Query.h"
 #include <iostream>
 #include <string>
 
@@ -10,16 +12,36 @@ using namespace std;
 
 class DatabaseMediator {
   private:
-    void loadBlockMediator(int blockID, char mode);
+  void loadBlockMediator(int blockID, char mode);
+  int convertPathToPage(const string& path, char mod);
+  BufferManager bfManager;
+  Disk_manager diskManager;
+  map<string,BPlusTree> bPlusTrees;
+  map<string,int> sizeRecord;
 
-    BufferManager bfManager;
-    Disk_manager diskManager;
-  public:
+  BPlusTree& getOrCreateBPTree(string relation);
+  string getBlockFromBPtreeForInsert(string key, string relation, bool space = true);
+  vector<string> getBlocksForRead(string key, string relation, int condition);
+  void fillBPtree(string relation);
+  void loadBPtree(string relation);
+  void saveBPtree(string relation);
+  vector<string> split(const string& str, char delimiter);
+  bool findRelationInFile(string &linea,const string& relationName,const string& filename = "../../data/usr/db/schemas.txt");
+  pair<vector<string>, vector<pair<int,int>>> parseRelation(const string& relationString);
+  pair<int,int> setClave(string relation);
+
+public:
   DatabaseMediator();
-    void addRecord(string& relation, string record, bool bucle = false, bool end = false);
-    void adminRam();
+  void loadIndex();
+  void addRecord(string& relation, string record, bool bucle = false, bool end = false);
+  void adminRam();
+  void selectDiskStructureMediator(bool defaultDisk);
+  void saveDataInRAM();
+  void loadDataInFiles();
+  void adminBplusTree();
+  void querys();
 
-    void selectDiskStructureMediator(bool defaultDisk);
+  void medSaveBlocksInSectors(string relation);
 };
 
 #endif

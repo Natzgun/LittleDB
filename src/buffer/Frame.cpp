@@ -68,3 +68,5 @@ void Frame ::showVector() {
   }
   cout << "\n";
 }
+
+string Frame :: getPathName() { return page.getName(); }

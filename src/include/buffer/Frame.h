@@ -56,6 +56,8 @@ public:
   int posLastWrite();  
 
   void showVector();
+
+  string getPathName();
 };
 
 #endif  // FRAME_H

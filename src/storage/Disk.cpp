@@ -105,6 +105,7 @@ Disk::Disk() {
   this->bytesPerSector = 4096;
 
   this->bytesPerBlock = 8192;
+
   this->sectorPerBlock = this->bytesPerBlock / this->bytesPerSector;
   this->blockPerTrack = this->sectorsPerTrack / this->sectorPerBlock;
 }
@@ -172,4 +173,21 @@ string Disk::nameForFiles(int level) {
   } else {
     return "platter";
   }
+}
+
+int Disk::getNumOfPlatters() const {
+  return 2*numPlatters;
+}
+
+vector<int> Disk::getDatosDisk() {
+  datos.push_back(numPlatters);
+  datos.push_back(tracksPerSurface);
+  datos.push_back(sectorsPerTrack);
+  datos.push_back(bytesPerSector);
+  datos.push_back(bytesPerBlock);
+  return datos;
+}
+
+int Disk::getBytesPerBlock() const {
+  return bytesPerBlock;
 }

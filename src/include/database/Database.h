@@ -38,5 +38,15 @@ public:
   void selectDisk(bool defaultDisk);
 
   void viewRam();
+
+  void saveDataInRAM();
+
+  void loadDataInFiles();
+
+  void adminBtree();
+
+  void saveSectors(string relation);
+
+  void querys();
 };
 #endif //DATABASE_H

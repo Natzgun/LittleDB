@@ -14,6 +14,9 @@ set(SOURCES
         buffer/Clock.cpp
         buffer/Frame.cpp
         buffer/Page.cpp
+        storage/index/BPlusTree.cpp
+        storage/index/Node.cpp
+        storage/index/Metadata.cpp
 )
 
 set(HEADERS include)

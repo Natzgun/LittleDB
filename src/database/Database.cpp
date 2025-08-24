@@ -1,6 +1,4 @@
 #include "database/Database.h"
-#include "database/Query.h"
-
 #include <algorithm>
 #include <fstream>
 #include <sstream>
@@ -288,7 +286,7 @@ void Database::insertInSchema(string &command) {
 }
 
 
-void Database::selectTable(string &tableName, string &columns, string &condition) {
+/*void Database::selectTable(string &tableName, string &columns, string &condition) {
   if (schemaExists(tableName) == "notFound")
     return;
 
@@ -309,6 +307,7 @@ void Database::selectTable(string &tableName, string &columns, string &condition
 
   cout << "Select de la tabla '" << tableName << "'." << endl;
 }
+*/
 
 void Database::readCSV(string &command) {
   string tablename = command.substr(8);
@@ -338,7 +337,7 @@ void Database::readCSV(string &command) {
     string values = formatRecordRLF(tableSchema, lineOfCSV);
     dbMediator.addRecord(tablename, values, true);
   }
-  dbMediator.addRecord(tablename,"end Bucle",false,true);
+  dbMediator.addRecord(tablename,"1000",false,true);
 
   csvFile.close();
 
@@ -351,4 +350,24 @@ void Database::selectDisk(bool defaultDisk) {
 
 void Database::viewRam() {
   dbMediator.adminRam();
+}
+
+void Database::saveDataInRAM() {
+  dbMediator.saveDataInRAM();
+}
+
+void Database::loadDataInFiles() {
+  dbMediator.loadDataInFiles();
+}
+
+void Database::adminBtree() {
+  dbMediator.adminBplusTree();
+}
+
+void Database::saveSectors(string relation) {
+  dbMediator.medSaveBlocksInSectors(relation);
+}
+
+void Database::querys() {
+  dbMediator.querys();
 }

@@ -19,7 +19,7 @@ public:
   // Métodos
   void loadPageFromDisk(string blockPath, int pageID, char _mode);
 
-  void killProcess(int pageID);
+  bool killProcess(int pageID);
 
   void savePageToDisk(int pageID);
 
@@ -39,6 +39,11 @@ public:
 
   void addRecordInBuffer(int pageID, string record);
 
+  pair<bool,int> addRecordInBuffer1(int pageID, string record);
+
+  string getPathName(int pageID);
+
+  string getContentPage(int pageID);
 };
 
 #endif  // BUFFERMANAGER_H
