@@ -10,3 +10,5 @@ data/root_directory/*.csv
 data/root_directory
 data/heapfiles
 data/metadataDisk
+compile_commands.json
+out
